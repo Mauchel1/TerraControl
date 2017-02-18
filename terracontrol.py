@@ -19,6 +19,9 @@ import ImageFont
 
 #--- Config ---
 
+actualTime = time.time()
+lastTempUpdate = actualTime
+
 # Raspberry Pi hardware SPI config:
 DC = 23
 RST = 24
@@ -35,4 +38,15 @@ disp.display()
 
 
 while 1 :
-  print "RUNRUNRUN"
+  actualTime = time.time()
+
+  # update buttons
+
+  # update sensors
+  if ((actualTime - lastTempUpdate) > 1):
+    lastTempUpdate = time.time()
+    print "Update Sensors"
+
+  # write to LCD
+
+  # write to log-file
