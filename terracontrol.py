@@ -7,6 +7,7 @@
 #--- Imports ---
 
 import time
+import RPi.GPIO as GPIO
 
 import Adafruit_Nokia_LCD as LCD
 import Adafruit_GPIO.SPI as SPI
@@ -21,6 +22,20 @@ import ImageFont
 
 actualTime = time.time()
 lastTempUpdate = actualTime
+
+state = 11
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(6, GPIO.IN)
+GPIO.setup(13, GPIO.IN)
+GPIO.setup(19, GPIO.IN)
+GPIO.setup(26, GPIO.IN)
+
+prev_select = 0
+prev_back = 0
+prev_up = 0
+prev_down = 0
+
 
 # Raspberry Pi hardware SPI config:
 DC = 23
@@ -42,11 +57,151 @@ while 1 :
 
   # update buttons
 
+  btn_select_pressed = 0
+  btn_back_pressed = 0
+  btn_up_pressed = 0
+  btn_down_pressed = 0
+
+  btn_select = GPIO.input(6)
+  btn_back = GPIO.input(13)
+  btn_up = GPIO.input(19)
+  btn_down = GPIO.input(26)
+
+  if ((not prev_select) and btn_select):
+	btn_select_pressed = 1;
+
+  if ((not prev_back) and btn_back):
+	btn_back_pressed = 1;
+
+  if ((not prev_up) and btn_up):
+	btn_up_pressed = 1;
+
+  if ((not prev_down) and btn_down):
+	btn_down_pressed = 1;
+
+  prev_select = btn_select
+  prev_back = btn_back
+  prev_up = btn_up
+  prev_down = btn_down
+
   # update sensors
   if ((actualTime - lastTempUpdate) > 1):
     lastTempUpdate = time.time()
     print "Update Sensors"
 
   # write to LCD
+
+  if state == 11:
+    if btn_select_pressed:
+      state = 21
+  elif state == 12:
+    if btn_select_pressed:
+      state = 21    
+  elif state == 21:
+    if btn_select_pressed:
+      state = 211
+    elif btn_back_pressed:
+      state = 11
+    elif btn_up_pressed:
+      state = 22
+    elif btn_down_pressed:
+      state = 24
+  elif state == 22:
+    if btn_select_pressed:
+      state = 221
+    elif btn_back_pressed:
+      state = 11
+    elif btn_up_pressed:
+      state = 23
+    elif btn_down_pressed:
+      state = 21
+  elif state == 23:
+    if btn_select_pressed:
+      state = 231
+    elif btn_back_pressed:
+      state = 11
+    elif btn_up_pressed:
+      state = 24
+    elif btn_down_pressed:
+      state = 22
+  elif state == 24:
+    if btn_select_pressed:
+      state = 11
+    elif btn_back_pressed:
+      state = 11
+    elif btn_up_pressed:
+      state = 21
+    elif btn_down_pressed:
+      state = 23
+  elif state == 211:
+    if btn_select_pressed:
+      state = 2111
+    elif btn_back_pressed:
+      state = 21
+    elif btn_up_pressed:
+      state = 212
+    elif btn_down_pressed:
+      state = 213
+  elif state == 212:
+    if btn_select_pressed:
+      state = 11
+    elif btn_back_pressed:
+      state = 21
+    elif btn_up_pressed:
+      state = 213
+    elif btn_down_pressed:
+      state = 211
+  elif state == 213:
+    if btn_select_pressed:
+      state = 11
+    elif btn_back_pressed:
+      state = 21
+    elif btn_up_pressed:
+      state = 211
+    elif btn_down_pressed:
+      state = 212
+  elif state == 221:
+    if btn_select_pressed:
+      state = 11
+    elif btn_back_pressed:
+      state = 22
+    elif btn_up_pressed:
+      state = 222
+    elif btn_down_pressed:
+      state = 222
+  elif state == 222:
+    if btn_select_pressed:
+      state = 2221
+    elif btn_back_pressed:
+      state = 22
+    elif btn_up_pressed:
+      state = 221
+    elif btn_down_pressed:
+      state = 221
+  elif state == 231:
+    if btn_select_pressed:
+      state = 11
+    elif btn_back_pressed:
+      state = 23
+  elif state == 2111:
+    if btn_select_pressed:
+      state = 11
+    elif btn_back_pressed:
+      state = 211
+    elif btn_up_pressed:
+      state = 2111      
+    elif btn_down_pressed:
+      state = 2111
+  elif state == 2221:
+    if btn_select_pressed:
+      state = 11
+    elif btn_back_pressed:
+      state = 222
+    elif btn_up_pressed:
+      state = 2221
+    elif btn_down_pressed:
+      state = 2221
+  else:
+    print "error - invalid state"
 
   # write to log-file
