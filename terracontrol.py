@@ -22,6 +22,7 @@ import ImageFont
 
 actualTime = time.time()
 lastTempUpdate = actualTime
+lastLCDUpdate = actualTime
 
 state = 11
 
@@ -31,10 +32,10 @@ GPIO.setup(13, GPIO.IN)
 GPIO.setup(19, GPIO.IN)
 GPIO.setup(26, GPIO.IN)
 
-prev_select = 0
-prev_back = 0
-prev_up = 0
-prev_down = 0
+prev_select = 1
+prev_back = 1
+prev_up = 1
+prev_down = 1
 
 
 # Raspberry Pi hardware SPI config:
@@ -50,6 +51,14 @@ disp.begin(contrast = 60)
 # clear display
 disp.clear()
 disp.display()
+
+# LCD 
+
+image = Image.new('1', (LCD.LCDWIDTH, LCD.LCDHEIGHT))
+
+draw = ImageDraw.Draw(image)
+draw.rectangle((0,0,LCD.LCDWIDTH, LCD.LCDHEIGHT), outline=255, fill=255)
+font = ImageFont.load_default()
 
 
 while 1 :
@@ -83,6 +92,8 @@ while 1 :
   prev_back = btn_back
   prev_up = btn_up
   prev_down = btn_down
+  
+  time.sleep(0.05) #debounce
 
   # update sensors
   if ((actualTime - lastTempUpdate) > 1):
@@ -92,12 +103,22 @@ while 1 :
   # write to LCD
 
   if state == 11:
+    print "elf"
+    if ((actualTime - lastLCDUpdate) > 3):
+      lastLCDUpdate = time.time()
+      state = 12
+    draw.text((8,30), 'Testtext', font=font)
     if btn_select_pressed:
       state = 21
   elif state == 12:
+    print "zwoelf"
+    if ((actualTime - lastLCDUpdate) > 3):
+      lastLCDUpdate = time.time()
+      state = 11
     if btn_select_pressed:
       state = 21    
   elif state == 21:
+    print "21"
     if btn_select_pressed:
       state = 211
     elif btn_back_pressed:
@@ -107,6 +128,7 @@ while 1 :
     elif btn_down_pressed:
       state = 24
   elif state == 22:
+    print "22"
     if btn_select_pressed:
       state = 221
     elif btn_back_pressed:
@@ -145,6 +167,8 @@ while 1 :
   elif state == 212:
     if btn_select_pressed:
       state = 11
+      with open("fuetterung.txt", "a") as f:
+        f.write("Fuetterung erfolgreich: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
     elif btn_back_pressed:
       state = 21
     elif btn_up_pressed:
@@ -154,6 +178,8 @@ while 1 :
   elif state == 213:
     if btn_select_pressed:
       state = 11
+      with open("fuetterung.txt", "a") as f:
+        f.write("Fuetterung verweigert: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
     elif btn_back_pressed:
       state = 21
     elif btn_up_pressed:
@@ -163,6 +189,8 @@ while 1 :
   elif state == 221:
     if btn_select_pressed:
       state = 11
+      with open("saeuberungen.txt", "a") as f:
+        f.write("Saeuberung: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
     elif btn_back_pressed:
       state = 22
     elif btn_up_pressed:
@@ -179,8 +207,11 @@ while 1 :
     elif btn_down_pressed:
       state = 221
   elif state == 231:
+    print "231"
     if btn_select_pressed:
       state = 11
+      with open("haeutungen.txt", "a") as f:
+        f.write("Haeutung: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
     elif btn_back_pressed:
       state = 23
   elif state == 2111:
@@ -204,4 +235,9 @@ while 1 :
   else:
     print "error - invalid state"
 
+  disp.image(image)
+  disp.display()
+
   # write to log-file
+
+
