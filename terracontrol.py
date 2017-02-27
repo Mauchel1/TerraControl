@@ -46,7 +46,7 @@ SPI_DEVICE = 0
 
 disp = LCD.PCD8544(DC, RST, spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE, max_speed_hz=4000000))
 
-disp.begin(contrast = 60)
+disp.begin(contrast = 55)
 
 # clear display
 disp.clear()
@@ -102,23 +102,35 @@ while 1 :
 
   # write to LCD
 
+  draw.rectangle((0,0,LCD.LCDWIDTH, LCD.LCDHEIGHT), outline=255, fill=255)
+  LCDDate = time.strftime("%d.%m.%y %H:%M", time.gmtime())
+
   if state == 11:
-    print "elf"
+    draw.text((0,1), LCDDate, font=font)    
+    draw.text((0,13), 'Temp1: ' + '00.0 C', font=font)
+    draw.text((0,25), 'Hum1: ' + '00.0 %', font=font)
+    draw.text((10,37), 'Testtext', font=font)
     if ((actualTime - lastLCDUpdate) > 3):
       lastLCDUpdate = time.time()
       state = 12
-    draw.text((8,30), 'Testtext', font=font)
     if btn_select_pressed:
       state = 21
   elif state == 12:
-    print "zwoelf"
+    draw.text((0,1), LCDDate, font=font)    
+    draw.text((0,13), 'Temp2: ' + '00.0 C', font=font)
+    draw.text((0,25), 'Hum2: ' + '00.0 %', font=font)
+    draw.text((10,37), 'Testtext2', font=font)
     if ((actualTime - lastLCDUpdate) > 3):
       lastLCDUpdate = time.time()
       state = 11
     if btn_select_pressed:
       state = 21    
   elif state == 21:
-    print "21"
+    draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+    draw.text((10,1), 'Fuetterung', font=font)    
+    draw.text((10,13), 'Saeuberung', font=font)
+    draw.text((10,25), 'Haeutung', font=font)
+    draw.text((10,37), 'Licht an', font=font)
     if btn_select_pressed:
       state = 211
     elif btn_back_pressed:
@@ -128,7 +140,11 @@ while 1 :
     elif btn_down_pressed:
       state = 24
   elif state == 22:
-    print "22"
+    draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+    draw.text((10,1), 'Fuetterung', font=font)    
+    draw.text((10,13), 'Saeuberung', font=font)
+    draw.text((10,25), 'Haeutung', font=font)
+    draw.text((10,37), 'Licht an', font=font)
     if btn_select_pressed:
       state = 221
     elif btn_back_pressed:
@@ -138,6 +154,11 @@ while 1 :
     elif btn_down_pressed:
       state = 21
   elif state == 23:
+    draw.polygon([(0,27), (6,30), (0,33)], outline=0, fill=0)
+    draw.text((10,1), 'Fuetterung', font=font)    
+    draw.text((10,13), 'Saeuberung', font=font)
+    draw.text((10,25), 'Haeutung', font=font)
+    draw.text((10,37), 'Licht an', font=font)
     if btn_select_pressed:
       state = 231
     elif btn_back_pressed:
@@ -147,6 +168,11 @@ while 1 :
     elif btn_down_pressed:
       state = 22
   elif state == 24:
+    draw.polygon([(0,39), (6,42), (0,45)], outline=0, fill=0)
+    draw.text((10,1), 'Fuetterung', font=font)    
+    draw.text((10,13), 'Saeuberung', font=font)
+    draw.text((10,25), 'Haeutung', font=font)
+    draw.text((10,37), 'Licht an', font=font)
     if btn_select_pressed:
       state = 11
     elif btn_back_pressed:
@@ -156,6 +182,10 @@ while 1 :
     elif btn_down_pressed:
       state = 23
   elif state == 211:
+    draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+    draw.text((10,1), 'naechste F.', font=font)    
+    draw.text((10,13), 'erfolgreich!', font=font)
+    draw.text((10,25), 'verweigert...', font=font)
     if btn_select_pressed:
       state = 2111
     elif btn_back_pressed:
@@ -165,6 +195,10 @@ while 1 :
     elif btn_down_pressed:
       state = 213
   elif state == 212:
+    draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+    draw.text((10,1), 'naechste F.', font=font)    
+    draw.text((10,13), 'erfolgreich!', font=font)
+    draw.text((10,25), 'verweigert...', font=font)
     if btn_select_pressed:
       state = 11
       with open("fuetterung.txt", "a") as f:
@@ -176,6 +210,10 @@ while 1 :
     elif btn_down_pressed:
       state = 211
   elif state == 213:
+    draw.polygon([(0,27), (6,30), (0,33)], outline=0, fill=0)
+    draw.text((10,1), 'naechste F.', font=font)    
+    draw.text((10,13), 'erfolgreich!', font=font)
+    draw.text((10,25), 'verweigert...', font=font)
     if btn_select_pressed:
       state = 11
       with open("fuetterung.txt", "a") as f:
@@ -187,6 +225,9 @@ while 1 :
     elif btn_down_pressed:
       state = 212
   elif state == 221:
+    draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+    draw.text((10,1), 'heute gemacht', font=font)    
+    draw.text((10,13), 'naechste S.', font=font)
     if btn_select_pressed:
       state = 11
       with open("saeuberungen.txt", "a") as f:
@@ -198,6 +239,9 @@ while 1 :
     elif btn_down_pressed:
       state = 222
   elif state == 222:
+    draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+    draw.text((10,1), 'heute gemacht', font=font)    
+    draw.text((10,13), 'naechste S.', font=font)
     if btn_select_pressed:
       state = 2221
     elif btn_back_pressed:
@@ -207,7 +251,10 @@ while 1 :
     elif btn_down_pressed:
       state = 221
   elif state == 231:
-    print "231"
+    draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+    draw.text((10,1), 'heute gewesen', font=font)    
+    draw.text((0,25), 'letzte Haeutung:', font=font)
+    draw.text((20,37), '00.00.2017', font=font)
     if btn_select_pressed:
       state = 11
       with open("haeutungen.txt", "a") as f:
@@ -215,6 +262,9 @@ while 1 :
     elif btn_back_pressed:
       state = 23
   elif state == 2111:
+    draw.text((0,1), 'naechste F in:', font=font)    
+    draw.text((40,20), '00', font=font)
+    draw.text((0,37), 'Tagen', font=font)
     if btn_select_pressed:
       state = 11
     elif btn_back_pressed:
@@ -224,6 +274,9 @@ while 1 :
     elif btn_down_pressed:
       state = 2111
   elif state == 2221:
+    draw.text((0,1), 'naechste S in:', font=font)    
+    draw.text((40,20), '00', font=font)
+    draw.text((0,37), 'Wochen', font=font)
     if btn_select_pressed:
       state = 11
     elif btn_back_pressed:
@@ -234,7 +287,7 @@ while 1 :
       state = 2221
   else:
     print "error - invalid state"
-
+ 
   disp.image(image)
   disp.display()
 
