@@ -23,14 +23,16 @@ import ImageFont
 actualTime = time.time()
 lastTempUpdate = actualTime
 lastLCDUpdate = actualTime
+lastBacklightUpdate = actualTime
 
 state = 11
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(6, GPIO.IN)
-GPIO.setup(13, GPIO.IN)
-GPIO.setup(19, GPIO.IN)
-GPIO.setup(26, GPIO.IN)
+GPIO.setup(6, GPIO.IN)  #btn
+GPIO.setup(13, GPIO.IN) #btn
+GPIO.setup(19, GPIO.IN) #btn
+GPIO.setup(26, GPIO.IN) #btn
+GPIO.setup(25, GPIO.OUT)#backlight LCD
 
 prev_select = 1
 prev_back = 1
@@ -70,6 +72,7 @@ while 1 :
   btn_back_pressed = 0
   btn_up_pressed = 0
   btn_down_pressed = 0
+  some_btn_pressed = 0
 
   btn_select = GPIO.input(6)
   btn_back = GPIO.input(13)
@@ -78,15 +81,19 @@ while 1 :
 
   if ((not prev_select) and btn_select):
 	btn_select_pressed = 1;
+        some_btn_pressed = 1;
 
   if ((not prev_back) and btn_back):
 	btn_back_pressed = 1;
+        some_btn_pressed = 1;
 
   if ((not prev_up) and btn_up):
 	btn_up_pressed = 1;
+        some_btn_pressed = 1;
 
   if ((not prev_down) and btn_down):
 	btn_down_pressed = 1;
+        some_btn_pressed = 1;
 
   prev_select = btn_select
   prev_back = btn_back
@@ -99,6 +106,16 @@ while 1 :
   if ((actualTime - lastTempUpdate) > 1):
     lastTempUpdate = time.time()
     print "Update Sensors"
+
+  # LCD backlight control
+
+  if (some_btn_pressed == 1):
+    GPIO.output(25, GPIO.HIGH)
+    lastBacklightUpdate = time.time()
+    some_btn_pressed = 0
+
+  if ((actualTime - lastBacklightUpdate) > 3):
+    GPIO.output(25, GPIO.LOW)
 
   # write to LCD
 
