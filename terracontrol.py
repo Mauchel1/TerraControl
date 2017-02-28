@@ -7,6 +7,7 @@
 #--- Imports ---
 
 import time
+from datetime import datetime, timedelta
 import RPi.GPIO as GPIO
 
 import Adafruit_Nokia_LCD as LCD
@@ -65,6 +66,7 @@ font = ImageFont.load_default()
 
 while 1 :
   actualTime = time.time()
+  actualDate = datetime.now()
 
   # update buttons
 
@@ -127,7 +129,7 @@ while 1 :
     draw.text((0,13), 'Temp1: ' + '00.0 C', font=font)
     draw.text((0,25), 'Hum1: ' + '00.0 %', font=font)
     draw.text((10,37), 'Testtext', font=font)
-    if ((actualTime - lastLCDUpdate) > 3):
+    if ((actualTime - lastLCDUpdate) > 5):
       lastLCDUpdate = time.time()
       state = 12
     if btn_select_pressed:
@@ -137,7 +139,7 @@ while 1 :
     draw.text((0,13), 'Temp2: ' + '00.0 C', font=font)
     draw.text((0,25), 'Hum2: ' + '00.0 %', font=font)
     draw.text((10,37), 'Testtext2', font=font)
-    if ((actualTime - lastLCDUpdate) > 3):
+    if ((actualTime - lastLCDUpdate) > 5):
       lastLCDUpdate = time.time()
       state = 11
     if btn_select_pressed:
@@ -205,6 +207,7 @@ while 1 :
     draw.text((10,25), 'verweigert...', font=font)
     if btn_select_pressed:
       state = 2111
+      nextF = 5
     elif btn_back_pressed:
       state = 21
     elif btn_up_pressed:
@@ -218,7 +221,7 @@ while 1 :
     draw.text((10,25), 'verweigert...', font=font)
     if btn_select_pressed:
       state = 11
-      with open("fuetterung.txt", "a") as f:
+      with open("/home/pi/terra/fuetterung.txt", "a") as f:
         f.write("Fuetterung erfolgreich: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
     elif btn_back_pressed:
       state = 21
@@ -233,7 +236,7 @@ while 1 :
     draw.text((10,25), 'verweigert...', font=font)
     if btn_select_pressed:
       state = 11
-      with open("fuetterung.txt", "a") as f:
+      with open("/home/pi/terra/fuetterung.txt", "a") as f:
         f.write("Fuetterung verweigert: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
     elif btn_back_pressed:
       state = 21
@@ -247,7 +250,7 @@ while 1 :
     draw.text((10,13), 'naechste S.', font=font)
     if btn_select_pressed:
       state = 11
-      with open("saeuberungen.txt", "a") as f:
+      with open("/home/pi/terra/saeuberungen.txt", "a") as f:
         f.write("Saeuberung: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
     elif btn_back_pressed:
       state = 22
@@ -260,6 +263,7 @@ while 1 :
     draw.text((10,1), 'heute gemacht', font=font)    
     draw.text((10,13), 'naechste S.', font=font)
     if btn_select_pressed:
+      nextS = 5
       state = 2221
     elif btn_back_pressed:
       state = 22
@@ -274,34 +278,46 @@ while 1 :
     draw.text((20,37), '00.00.2017', font=font)
     if btn_select_pressed:
       state = 11
-      with open("haeutungen.txt", "a") as f:
+      with open("/home/pi/terra/haeutungen.txt", "a") as f:
         f.write("Haeutung: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
     elif btn_back_pressed:
       state = 23
   elif state == 2111:
     draw.text((0,1), 'naechste F in:', font=font)    
-    draw.text((40,20), '00', font=font)
+    draw.text((40,20), str(nextF), font=font)
     draw.text((0,37), 'Tagen', font=font)
     if btn_select_pressed:
       state = 11
+      td = timedelta(days=nextF)
+      nextDate = actualDate + td
+      with open("/home/pi/terra/fuetterung.txt", "a") as f:
+        f.write("naechste Fuetterung: " + nextDate.strftime("%B %d %Y") + "\n")
     elif btn_back_pressed:
       state = 211
-    elif btn_up_pressed:
-      state = 2111      
+    elif btn_up_pressed:      
+      nextF += 1
     elif btn_down_pressed:
-      state = 2111
+      nextF -= 1
+      if (nextF < 1):
+        nextF = 1
   elif state == 2221:
     draw.text((0,1), 'naechste S in:', font=font)    
-    draw.text((40,20), '00', font=font)
+    draw.text((40,20), str(nextS), font=font)
     draw.text((0,37), 'Wochen', font=font)
     if btn_select_pressed:
       state = 11
+      td = timedelta(days=nextS)
+      nextDate = actualDate + td
+      with open("/home/pi/terra/saeuberungen.txt", "a") as f:
+        f.write("naechste Saeuberung: " + nextDate.strftime("%B %d %Y") + "\n")
     elif btn_back_pressed:
       state = 222
     elif btn_up_pressed:
-      state = 2221
-    elif btn_down_pressed:
-      state = 2221
+      nextS += 1
+    elif btn_down_pressed:       
+      nextS -= 1
+      if (nextS < 1):
+        nextS = 1
   else:
     print "error - invalid state"
  
