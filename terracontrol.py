@@ -29,6 +29,7 @@ lastBacklightUpdate = actualTime
 state = 11
 
 GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
 GPIO.setup(6, GPIO.IN)  #btn
 GPIO.setup(13, GPIO.IN) #btn
 GPIO.setup(19, GPIO.IN) #btn
@@ -63,10 +64,51 @@ draw = ImageDraw.Draw(image)
 draw.rectangle((0,0,LCD.LCDWIDTH, LCD.LCDHEIGHT), outline=255, fill=255)
 font = ImageFont.load_default()
 
+# get last Dates
+lastH = datetime.now()
+
+infile = open('/home/pi/terra/haeutungen.txt')
+lines = infile.readlines()
+infile.close()
+
+for revert_line in lines [::-1]:
+  if "Haeutung: " in revert_line:
+    line = revert_line[10:] #ersten Teil loeschen
+    line = line.splitlines() #letztes \n entfernen
+    lastH = datetime.strptime(line[0], "%a, %d %b %Y")
+    break
+
+# get next Dates
+nextFuetterung = datetime.now() 
+nextSaeuberung = datetime.now()
+
+infile = open('/home/pi/terra/saeuberungen.txt')
+lines = infile.readlines()
+infile.close()
+
+for revert_line in lines [::-1]:
+  if "naechste Saeuberung: " in revert_line:
+    line = revert_line[21:] #ersten Teil loeschen
+    line = line.splitlines() #letztes \n entfernen
+    nextSaeuberung = datetime.strptime(line[0], "%B %d %Y")
+    break
+
+infile = open('/home/pi/terra/fuetterung.txt')
+lines = infile.readlines()
+infile.close()
+
+for revert_line in lines [::-1]:
+  if "naechste Fuetterung: " in revert_line:
+    line = revert_line[21:] #ersten Teil loeschen
+    line = line.splitlines() #letztes \n entfernen
+    nextFuetterung = datetime.strptime(line[0], "%B %d %Y")
+    break
 
 while 1 :
   actualTime = time.time()
   actualDate = datetime.now()
+  nextFInDays = (nextFuetterung - actualDate).days + 1 # Anzahl der verbleibenden Tage
+  nextSInDays = (nextSaeuberung - actualDate).days + 1 # Anzahl der verbleibenden Tage
 
   # update buttons
 
@@ -122,13 +164,13 @@ while 1 :
   # write to LCD
 
   draw.rectangle((0,0,LCD.LCDWIDTH, LCD.LCDHEIGHT), outline=255, fill=255)
-  LCDDate = time.strftime("%d.%m.%y %H:%M", time.gmtime())
+  LCDDate = time.strftime("%d.%m.%y %H:%M", time.localtime())
 
   if state == 11:
     draw.text((0,1), LCDDate, font=font)    
     draw.text((0,13), 'Temp1: ' + '00.0 C', font=font)
     draw.text((0,25), 'Hum1: ' + '00.0 %', font=font)
-    draw.text((10,37), 'Testtext', font=font)
+    draw.text((0,37), 'Fuetter: ' + str(nextFInDays) + " d", font=font)
     if ((actualTime - lastLCDUpdate) > 5):
       lastLCDUpdate = time.time()
       state = 12
@@ -138,7 +180,7 @@ while 1 :
     draw.text((0,1), LCDDate, font=font)    
     draw.text((0,13), 'Temp2: ' + '00.0 C', font=font)
     draw.text((0,25), 'Hum2: ' + '00.0 %', font=font)
-    draw.text((10,37), 'Testtext2', font=font)
+    draw.text((0,37), 'Saeuber: ' + str(nextSInDays) + " d", font=font)
     if ((actualTime - lastLCDUpdate) > 5):
       lastLCDUpdate = time.time()
       state = 11
@@ -222,7 +264,7 @@ while 1 :
     if btn_select_pressed:
       state = 11
       with open("/home/pi/terra/fuetterung.txt", "a") as f:
-        f.write("Fuetterung erfolgreich: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
+        f.write("Fuetterung erfolgreich: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
     elif btn_back_pressed:
       state = 21
     elif btn_up_pressed:
@@ -237,7 +279,7 @@ while 1 :
     if btn_select_pressed:
       state = 11
       with open("/home/pi/terra/fuetterung.txt", "a") as f:
-        f.write("Fuetterung verweigert: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
+        f.write("Fuetterung verweigert: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
     elif btn_back_pressed:
       state = 21
     elif btn_up_pressed:
@@ -251,7 +293,7 @@ while 1 :
     if btn_select_pressed:
       state = 11
       with open("/home/pi/terra/saeuberungen.txt", "a") as f:
-        f.write("Saeuberung: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
+        f.write("Saeuberung: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
     elif btn_back_pressed:
       state = 22
     elif btn_up_pressed:
@@ -275,11 +317,12 @@ while 1 :
     draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
     draw.text((10,1), 'heute gewesen', font=font)    
     draw.text((0,25), 'letzte Haeutung:', font=font)
-    draw.text((20,37), '00.00.2017', font=font)
+    draw.text((20,37), lastH.strftime("%d.%m.%Y"), font=font)
     if btn_select_pressed:
       state = 11
+      lastH = datetime.now()
       with open("/home/pi/terra/haeutungen.txt", "a") as f:
-        f.write("Haeutung: " + time.strftime("%a, %d %b %Y", time.gmtime()) + "\n")
+        f.write("Haeutung: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
     elif btn_back_pressed:
       state = 23
   elif state == 2111:
@@ -290,6 +333,7 @@ while 1 :
       state = 11
       td = timedelta(days=nextF)
       nextDate = actualDate + td
+      nextFuetterung = nextDate
       with open("/home/pi/terra/fuetterung.txt", "a") as f:
         f.write("naechste Fuetterung: " + nextDate.strftime("%B %d %Y") + "\n")
     elif btn_back_pressed:
@@ -306,8 +350,9 @@ while 1 :
     draw.text((0,37), 'Wochen', font=font)
     if btn_select_pressed:
       state = 11
-      td = timedelta(days=nextS)
+      td = timedelta(days=nextS*7)
       nextDate = actualDate + td
+      nextSaeuberung = nextDate
       with open("/home/pi/terra/saeuberungen.txt", "a") as f:
         f.write("naechste Saeuberung: " + nextDate.strftime("%B %d %Y") + "\n")
     elif btn_back_pressed:
