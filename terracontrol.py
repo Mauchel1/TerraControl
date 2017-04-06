@@ -28,6 +28,8 @@ lastBacklightUpdate = actualTime
 
 state = 11
 
+PIN_FOGGER = 27
+
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 GPIO.setup(6, GPIO.IN)  #btn
@@ -35,12 +37,21 @@ GPIO.setup(13, GPIO.IN) #btn
 GPIO.setup(19, GPIO.IN) #btn
 GPIO.setup(26, GPIO.IN) #btn
 GPIO.setup(25, GPIO.OUT)#backlight LCD
+GPIO.setup(PIN_FOGGER, GPIO.OUT)
 
 prev_select = 1
 prev_back = 1
 prev_up = 1
 prev_down = 1
 
+foggerOn = 0
+humidity = 50
+humidityKrit = 40
+
+sunriseH = 8
+sunriseM = 15
+sunsetH = 21
+sunsetM = 20
 
 # Raspberry Pi hardware SPI config:
 DC = 23
@@ -150,6 +161,26 @@ while 1 :
   if ((actualTime - lastTempUpdate) > 1):
     lastTempUpdate = time.time()
     print "Update Sensors"
+  
+  # Regulation
+
+  if ((actualDate.hour > sunriseH && actualDate.hour < sunsetH) || (actualDate.hour == sunriseH && actualDate.minute > sunriseM) || (actualDate.hour == sunsetH && actualDate.minute < sunsetM)):
+    day = 1
+  else:
+    day = 0
+  
+  if (day):
+
+    # Humidity Area
+    if (tempStable && (humidity < humidityKrit) && ((actualTime - lastFoggerOn) > 300)):
+      GPIO.output(PIN_FOGGER, GPIO.HIGH)
+      lastFoggerOn = time.time()
+      foggerOn = 1
+
+  if (foggerOn && (actualTime - lastFoggerOn) > 20):
+	  #switch off fogger
+    foggerOn = 0
+    GPIO.output(PIN_FOGGER, GPIO.LOW)
 
   # LCD backlight control
 
