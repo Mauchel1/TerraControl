@@ -28,7 +28,9 @@ lastBacklightUpdate = actualTime
 
 state = 11
 
-PIN_FOGGER = 27
+PIN_FOGGER = 27 #TODO - hier alle Pins anpassen
+PIN_HEAT = 27
+PIN_COOLER = 27
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -38,6 +40,8 @@ GPIO.setup(19, GPIO.IN) #btn
 GPIO.setup(26, GPIO.IN) #btn
 GPIO.setup(25, GPIO.OUT)#backlight LCD
 GPIO.setup(PIN_FOGGER, GPIO.OUT)
+GPIO.setup(PIN_HEAT, GPIO.OUT)
+GPIO.setup(PIN_COOLER, GPIO.OUT)
 
 prev_select = 1
 prev_back = 1
@@ -184,21 +188,21 @@ while 1 :
     if (actualTemp < tempDayLow):
       tempStable = 0
       heaterOn = 1
-      #switch on Heat
+      GPIO.output(PIN_HEAT, GPIO.HIGH)
     elif (actualTemp > tempDayHigh):
       tempStable = 0
       coolerOn = 1
-      #switch on cooler
+      GPIO.output(PIN_COOLER, GPIO.HIGH)
     else:
       tempStable = 1
       
     if (heaterOn and actualTemp > (tempDayLow + ((tempDayHigh - tempDayLow) / 2)) ):
       heaterOn = 0
-      #switch off Heat
+      GPIO.output(PIN_HEAT, GPIO.LOW)
           
     if (coolerOn and actualTemp < (tempDayLow + ((tempDayHigh - tempDayLow) / 2)) ):
       coolerOn = 0
-      #switch off Cooler
+      GPIO.output(PIN_COOLER, GPIO.LOW)
           
     # Humidity Area
     if (tempStable and (humidity < humidityKrit) and ((actualTime - lastFoggerOn) > 300)):
@@ -208,12 +212,11 @@ while 1 :
       
   else:
     if (actualTemp < tempNightLow):
-      #switch on heat
+      GPIO.output(PIN_HEAT, GPIO.HIGH)
     elif (actualTemp > tempNightLow + tempHystereseNight):
-      #switch off heat
+      GPIO.output(PIN_HEAT, GPIO.LOW)
   
   if (foggerOn and (actualTime - lastFoggerOn) > 20):
-	  #switch off fogger
     foggerOn = 0
     GPIO.output(PIN_FOGGER, GPIO.LOW)
 
