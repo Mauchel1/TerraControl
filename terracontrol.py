@@ -31,17 +31,28 @@ state = 11
 PIN_FOGGER = 27 #TODO - hier alle Pins anpassen
 PIN_HEAT = 27
 PIN_COOLER = 27
+PIN_LED_FUETTERUNG = 27
+PIN_LED_SAEUBERUNG = 27
+PIN_LED_TEMPERATUR = 27
+PIN_BUTTON_SEL = 6
+PIN_BUTTON_BACK = 13
+PIN_BUTTON_UP = 19
+PIN_BUTTON_DOWN = 26
+PIN_BACKLIGHT_LCD = 25
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
-GPIO.setup(6, GPIO.IN)  #btn
-GPIO.setup(13, GPIO.IN) #btn
-GPIO.setup(19, GPIO.IN) #btn
-GPIO.setup(26, GPIO.IN) #btn
-GPIO.setup(25, GPIO.OUT)#backlight LCD
+GPIO.setup(PIN_BUTTON_SEL, GPIO.IN)  
+GPIO.setup(PIN_BUTTON_BACK, GPIO.IN) 
+GPIO.setup(PIN_BUTTON_UP, GPIO.IN) 
+GPIO.setup(PIN_BUTTON_DOWN, GPIO.IN) 
+GPIO.setup(PIN_BACKLIGHT_LCD, GPIO.OUT)
 GPIO.setup(PIN_FOGGER, GPIO.OUT)
 GPIO.setup(PIN_HEAT, GPIO.OUT)
 GPIO.setup(PIN_COOLER, GPIO.OUT)
+GPIO.setup(PIN_LED_FUETTERUNG, GPIO.OUT)
+GPIO.setup(PIN_LED_SAEUBERUNG, GPIO.OUT)
+GPIO.setup(PIN_LED_TEMPERATUR, GPIO.OUT)
 
 prev_select = 1
 prev_back = 1
@@ -140,10 +151,10 @@ while 1 :
   btn_down_pressed = 0
   some_btn_pressed = 0
 
-  btn_select = GPIO.input(6)
-  btn_back = GPIO.input(13)
-  btn_up = GPIO.input(19)
-  btn_down = GPIO.input(26)
+  btn_select = GPIO.input(PIN_BUTTON_SEL)
+  btn_back = GPIO.input(PIN_BUTTON_BACK)
+  btn_up = GPIO.input(PIN_BUTTON_UP)
+  btn_down = GPIO.input(PIN_BUTTON_DOWN)
 
   if ((not prev_select) and btn_select):
 	btn_select_pressed = 1;
@@ -220,15 +231,32 @@ while 1 :
     foggerOn = 0
     GPIO.output(PIN_FOGGER, GPIO.LOW)
 
+  # Warning LED's
+  
+    if (nextFInDays < 3):
+      GPIO.output(PIN_LED_FUETTERUNG, GPIO.HIGH)
+    else: 
+      GPIO.output(PIN_LED_FUETTERUNG, GPIO.LOW)
+    
+    if (nextSInDays < 3):
+      GPIO.output(PIN_LED_SAEUBERUNG, GPIO.HIGH)
+    else: 
+      GPIO.output(PIN_LED_SAEUBERUNG, GPIO.LOW)
+    
+    if (not tempStable):
+      GPIO.output(PIN_LED_TEMPERATUR, GPIO.HIGH)
+    else: 
+      GPIO.output(PIN_LED_TEMPERATUR, GPIO.LOW)
+    
   # LCD backlight control
 
   if (some_btn_pressed == 1):
-    GPIO.output(25, GPIO.HIGH)
+    GPIO.output(PIN_BACKLIGHT_LCD, GPIO.HIGH)
     lastBacklightUpdate = time.time()
     some_btn_pressed = 0
 
   if ((actualTime - lastBacklightUpdate) > 3):
-    GPIO.output(25, GPIO.LOW)
+    GPIO.output(PIN_BACKLIGHT_LCD, GPIO.LOW)
 
   # write to LCD
 
