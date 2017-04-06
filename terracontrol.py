@@ -44,6 +44,8 @@ prev_back = 1
 prev_up = 1
 prev_down = 1
 
+heaterOn = 0
+coolerOn = 0
 foggerOn = 0
 humidity = 50
 humidityKrit = 40
@@ -178,16 +180,26 @@ while 1 :
   
   if (day):
     
+    # Temperature Area
     if (actualTemp < tempDayLow):
       tempStable = 0
+      heaterOn = 1
       #switch on Heat
     elif (actualTemp > tempDayHigh):
       tempStable = 0
+      coolerOn = 1
       #switch on cooler
     else:
       tempStable = 1
-      #switch off cooler // Heat
       
+    if (heaterOn and actualTemp > (tempDayLow + ((tempDayHigh - tempDayLow) / 2)) ):
+      heaterOn = 0
+      #switch off Heat
+          
+    if (coolerOn and actualTemp < (tempDayLow + ((tempDayHigh - tempDayLow) / 2)) ):
+      coolerOn = 0
+      #switch off Cooler
+          
     # Humidity Area
     if (tempStable and (humidity < humidityKrit) and ((actualTime - lastFoggerOn) > 300)):
       GPIO.output(PIN_FOGGER, GPIO.HIGH)
@@ -199,8 +211,7 @@ while 1 :
       #switch on heat
     elif (actualTemp > tempNightLow + tempHystereseNight):
       #switch off heat
-      
-    
+  
   if (foggerOn and (actualTime - lastFoggerOn) > 20):
 	  #switch off fogger
     foggerOn = 0
