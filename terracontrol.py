@@ -51,6 +51,7 @@ tempStable = 0
 tempNightLow = 18
 tempDayLow = 28
 tempDayHigh = 32
+tempHystereseNight = 2
 
 sunriseH = 8
 sunriseM = 15
@@ -193,10 +194,10 @@ while 1 :
       lastFoggerOn = time.time()
       foggerOn = 1
       
-  else: #TODO: Hysterese einbauen!
+  else:
     if (actualTemp < tempNightLow):
       #switch on heat
-    else:
+    elif (actualTemp > tempNightLow + tempHystereseNight):
       #switch off heat
       
     
