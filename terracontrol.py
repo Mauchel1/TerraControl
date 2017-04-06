@@ -47,6 +47,10 @@ prev_down = 1
 foggerOn = 0
 humidity = 50
 humidityKrit = 40
+tempStable = 0
+tempNightLow = 18
+tempDayLow = 28
+tempDayHigh = 32
 
 sunriseH = 8
 sunriseM = 15
@@ -161,23 +165,42 @@ while 1 :
   if ((actualTime - lastTempUpdate) > 1):
     lastTempUpdate = time.time()
     print "Update Sensors"
+    #actualTemp = (in Grad C)
+    #humidity = (0-100)
   
   # Regulation
 
-  if ((actualDate.hour > sunriseH && actualDate.hour < sunsetH) || (actualDate.hour == sunriseH && actualDate.minute > sunriseM) || (actualDate.hour == sunsetH && actualDate.minute < sunsetM)):
+  if ((actualDate.hour > sunriseH and actualDate.hour < sunsetH) or (actualDate.hour == sunriseH and actualDate.minute > sunriseM) or (actualDate.hour == sunsetH and actualDate.minute < sunsetM)):
     day = 1
   else:
     day = 0
   
   if (day):
-
+    
+    if (actualTemp < tempDayLow):
+      tempStable = 0
+      #switch on Heat
+    elif (actualTemp > tempDayHigh):
+      tempStable = 0
+      #switch on cooler
+    else:
+      tempStable = 1
+      #switch off cooler // Heat
+      
     # Humidity Area
-    if (tempStable && (humidity < humidityKrit) && ((actualTime - lastFoggerOn) > 300)):
+    if (tempStable and (humidity < humidityKrit) and ((actualTime - lastFoggerOn) > 300)):
       GPIO.output(PIN_FOGGER, GPIO.HIGH)
       lastFoggerOn = time.time()
       foggerOn = 1
-
-  if (foggerOn && (actualTime - lastFoggerOn) > 20):
+      
+  else: #TODO: Hysterese einbauen!
+    if (actualTemp < tempNightLow):
+      #switch on heat
+    else:
+      #switch off heat
+      
+    
+  if (foggerOn and (actualTime - lastFoggerOn) > 20):
 	  #switch off fogger
     foggerOn = 0
     GPIO.output(PIN_FOGGER, GPIO.LOW)
