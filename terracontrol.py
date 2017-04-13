@@ -12,6 +12,12 @@ import RPi.GPIO as GPIO
 
 import Adafruit_Nokia_LCD as LCD
 import Adafruit_GPIO.SPI as SPI
+import Adafruit_DHT
+
+#18b20 temp sensor
+import os
+import glob
+import time
 
 import Image
 
@@ -26,6 +32,18 @@ lastTempUpdate = actualTime
 lastLCDUpdate = actualTime
 lastBacklightUpdate = actualTime
 
+#18b20 temp sensor
+os.system('modprobe w1-gpio') 
+os.system('modprobe w1-therm')
+
+humSensor = Adafruit_DHT.DHT11
+
+base_dir = '/sys/bus/w1/devices/'
+device_folder1 = glob.glob(base_dir + '28*')[0]
+device_folder2 = glob.glob(base_dir + '28*')[1]
+device_file1 = device_folder1 + '/w1_slave'
+device_file2 = device_folder2 + '/w1_slave'
+
 state = 11
 
 PIN_FOGGER = 17
@@ -39,6 +57,8 @@ PIN_BUTTON_BACK = 13
 PIN_BUTTON_UP = 19
 PIN_BUTTON_DOWN = 26
 PIN_BACKLIGHT_LCD = 25
+PIN_DHT11_1 = 14
+PIN_DHT11_2 = 15
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -63,6 +83,11 @@ heaterOn = 0
 coolerOn = 0
 foggerOn = 0
 humidity = 50
+actualTemp = 22
+rawTemp1 = 22
+rawTemp2 = 22
+rawHum1 = 50
+rawHum2 = 50
 humidityKrit = 40
 tempStable = 0
 tempNightLow = 18
@@ -137,6 +162,23 @@ for revert_line in lines [::-1]:
     nextFuetterung = datetime.strptime(line[0], "%B %d %Y")
     break
 
+def read_temp_raw(device_file):
+  f = open(device_file, 'r')
+  lines = f.readlines()
+  f.close()
+  return lines
+
+def read_temp(sensor):
+  lines = read_temp_raw(sensor)
+  while lines[0].strip()[-3:] != 'YES':
+    time.sleep(0.2)
+    lines = read_temp_raw(sensor)
+  equals_pos = lines[1].find('t=')
+  if equals_pos != -1:
+    temp_string = lines[1][equals_pos+2:]
+    temp_c = float(temp_string) / 1000.0
+    return temp_c
+
 while 1 :
   actualTime = time.time()
   actualDate = datetime.now()
@@ -180,11 +222,14 @@ while 1 :
   time.sleep(0.05) #debounce
 
   # update sensors
-  if ((actualTime - lastTempUpdate) > 1):
+  if ((actualTime - lastTempUpdate) > 2.5):
     lastTempUpdate = time.time()
-    print "Update Sensors"
-    #actualTemp = (in Grad C)
-    #humidity = (0-100)
+    rawTemp1 = read_temp(device_file1)
+    rawTemp2 = read_temp(device_file2)
+    rawHum1, rawTempDHT1 = Adafruit_DHT.read_retry(humSensor, PIN_DHT11_1)
+    rawHum2, rawTempDHT2 = Adafruit_DHT.read_retry(humSensor, PIN_DHT11_2)
+    actualTemp = (rawTemp1 + rawTemp2) / 2
+    print "actualTemp = " + str(actualTemp)
   
   # Regulation
 
@@ -265,8 +310,8 @@ while 1 :
 
   if state == 11:
     draw.text((0,1), LCDDate, font=font)    
-    draw.text((0,13), 'Temp1: ' + '00.0 C', font=font)
-    draw.text((0,25), 'Hum1: ' + '00.0 %', font=font)
+    draw.text((0,13), 'Temp1: ' + ("%.2f" % rawTemp1) + ' C', font=font)
+    draw.text((0,25), 'Hum1: ' + ("%.1f" % rawHum1) + ' %', font=font)
     draw.text((0,37), 'Fuetter: ' + str(nextFInDays) + " d", font=font)
     if ((actualTime - lastLCDUpdate) > 5):
       lastLCDUpdate = time.time()
@@ -275,8 +320,8 @@ while 1 :
       state = 21
   elif state == 12:
     draw.text((0,1), LCDDate, font=font)    
-    draw.text((0,13), 'Temp2: ' + '00.0 C', font=font)
-    draw.text((0,25), 'Hum2: ' + '00.0 %', font=font)
+    draw.text((0,13), 'Temp2: ' + ("%.2f" % rawTemp2) + ' C', font=font)
+    draw.text((0,25), 'Hum2: ' + ("%.1f" % rawHum2) + ' %', font=font)
     draw.text((0,37), 'Saeuber: ' + str(nextSInDays) + " d", font=font)
     if ((actualTime - lastLCDUpdate) > 5):
       lastLCDUpdate = time.time()
