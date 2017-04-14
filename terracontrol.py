@@ -10,6 +10,8 @@ import time
 from datetime import datetime, timedelta
 import RPi.GPIO as GPIO
 
+from influxdb import InfluxDBClient
+
 import Adafruit_Nokia_LCD as LCD
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_DHT
@@ -31,6 +33,7 @@ actualTime = time.time()
 lastTempUpdate = actualTime
 lastLCDUpdate = actualTime
 lastBacklightUpdate = actualTime
+lastLog = actualTime
 
 #18b20 temp sensor
 os.system('modprobe w1-gpio') 
@@ -43,6 +46,16 @@ device_folder1 = glob.glob(base_dir + '28*')[0]
 device_folder2 = glob.glob(base_dir + '28*')[1]
 device_file1 = device_folder1 + '/w1_slave'
 device_file2 = device_folder2 + '/w1_slave'
+
+# influxDB
+host = "localhost"
+port = 8086
+user = "root"
+password = "root"
+
+dbname = "TerraDB"
+
+client = InfluxDBClient(host, port, user, password, dbname)
 
 state = 11
 
@@ -513,4 +526,17 @@ while 1 :
 
   # write to log-file
 
+  if ((actualTime - lastLog) > 5):
+    lastLog = time.time()
+    json_body = [
+    {
+      "measurement": "terralog",
+        "fields": {
+          "Temp1" : rawTemp1, "Temp2" : rawTemp2, "Hum1" : rawHum1, "Hum2" : rawHum2
+        }
+      }
+    ]
+
+    client.write_points(json_body)
+    print "write log file"
 
