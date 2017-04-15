@@ -16,3 +16,11 @@ if ! pgrep -f "influxd" >/dev/null 2>&1 ; then
 
 fi
 
+#prüft ob grafana läuft, startet es gegebenfalls
+
+if ! pgrep -f "/usr/sbin/grafa" >/dev/null 2>&1 ; then
+
+  sudo service grafana-server start
+
+fi
+
