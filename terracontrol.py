@@ -561,7 +561,7 @@ while 1 :
     {
       "measurement": "terralog",
         "fields": {
-          "Temp1" : rawTemp1, "Temp2" : rawTemp2, "Hum1" : hum1, "Hum2" : hum2
+          "Temp1" : rawTemp1, "Temp2" : rawTemp2, "Hum1" : hum1, "Hum2" : hum2, "Temp" : actualTemp, "Hum" : humidity
         }
       }
     ]
