@@ -100,7 +100,9 @@ actualTemp = 22
 rawTemp1 = 22
 rawTemp2 = 22
 rawHum1 = 50
+hum1 = 50
 rawHum2 = 50
+hum2 = 50
 humidityKrit = 40
 tempStable = 0
 tempNightLow = 18
@@ -243,6 +245,10 @@ while 1 :
     rawHum2, rawTempDHT2 = Adafruit_DHT.read_retry(humSensor, PIN_DHT11_2)
     actualTemp = (rawTemp1 + rawTemp2) / 2
     print "actualTemp = " + str(actualTemp)
+    if (rawHum1 < 100 and rawHum1 > 0):
+      hum1 = rawHum1
+    if (rawHum2 < 100 and rawHum2 > 0):
+      hum2 = rawHum2
   
   # Regulation
 
@@ -324,7 +330,7 @@ while 1 :
   if state == 11:
     draw.text((0,1), LCDDate, font=font)    
     draw.text((0,13), 'Temp1: ' + ("%.2f" % rawTemp1) + ' C', font=font)
-    draw.text((0,25), 'Hum1: ' + ("%.1f" % rawHum1) + ' %', font=font)
+    draw.text((0,25), 'Hum1: ' + ("%.1f" % hum1) + ' %', font=font)
     draw.text((0,37), 'Fuetter: ' + str(nextFInDays) + " d", font=font)
     if ((actualTime - lastLCDUpdate) > 5):
       lastLCDUpdate = time.time()
@@ -334,7 +340,7 @@ while 1 :
   elif state == 12:
     draw.text((0,1), LCDDate, font=font)    
     draw.text((0,13), 'Temp2: ' + ("%.2f" % rawTemp2) + ' C', font=font)
-    draw.text((0,25), 'Hum2: ' + ("%.1f" % rawHum2) + ' %', font=font)
+    draw.text((0,25), 'Hum2: ' + ("%.1f" % hum2) + ' %', font=font)
     draw.text((0,37), 'Saeuber: ' + str(nextSInDays) + " d", font=font)
     if ((actualTime - lastLCDUpdate) > 5):
       lastLCDUpdate = time.time()
@@ -532,7 +538,7 @@ while 1 :
     {
       "measurement": "terralog",
         "fields": {
-          "Temp1" : rawTemp1, "Temp2" : rawTemp2, "Hum1" : rawHum1, "Hum2" : rawHum2
+          "Temp1" : rawTemp1, "Temp2" : rawTemp2, "Hum1" : hum1, "Hum2" : hum2
         }
       }
     ]
