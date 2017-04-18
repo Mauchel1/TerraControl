@@ -114,6 +114,10 @@ averageHum1Array = np.zeros(5)
 averageHum2Array = np.zeros(5)
 averageHum1 = 50
 averageHum2 = 50
+averageTemp1Array = np.zeros(5)
+averageTemp2Array = np.zeros(5)
+averageTemp1 = 25
+averageTemp2 = 25
 
 sunriseH = 8
 sunriseM = 15
@@ -261,6 +265,13 @@ while 1 :
     averageHum2Array = np.resize(averageHum2Array, 5)
     averageHum2 = np.mean(averageHum2Array)
     humidity = (averageHum1 + averageHum2) / 2
+    averageTemp1Array = np.insert(averageTemp1Array, 0, rawTemp1)
+    averageTemp1Array = np.resize(averageTemp1Array, 5)
+    averageTemp1 = np.mean(averageTemp1Array)
+    averageTemp2Array = np.insert(averageTemp2Array, 0, rawTemp2)
+    averageTemp2Array = np.resize(averageTemp2Array, 5)
+    averageTemp2 = np.mean(averageTemp2Array)
+    actualTemp = (averageTemp1 + averageTemp2) / 2
 
   # Regulation
 
