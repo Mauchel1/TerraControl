@@ -9,6 +9,7 @@
 import time
 from datetime import datetime, timedelta
 import RPi.GPIO as GPIO
+import numpy as np
 
 from influxdb import InfluxDBClient
 
@@ -109,6 +110,10 @@ tempNightLow = 18
 tempDayLow = 28
 tempDayHigh = 32
 tempHystereseNight = 2
+averageHum1Array = np.zeros(5)
+averageHum2Array = np.zeros(5)
+averageHum1 = 50
+averageHum2 = 50
 
 sunriseH = 8
 sunriseM = 15
@@ -249,7 +254,14 @@ while 1 :
       hum1 = rawHum1
     if (rawHum2 < 100 and rawHum2 > 0):
       hum2 = rawHum2
-  
+    averageHum1Array = np.insert(averageHum1Array, 0, hum1)
+    averageHum1Array = np.resize(averageHum1Array, 5)
+    averageHum1 = np.mean(averageHum1Array)
+    averageHum2Array = np.insert(averageHum2Array, 0, hum2)
+    averageHum2Array = np.resize(averageHum2Array, 5)
+    averageHum2 = np.mean(averageHum2Array)
+    humidity = (averageHum1 + averageHum2) / 2
+
   # Regulation
 
   if ((actualDate.hour > sunriseH and actualDate.hour < sunsetH) or (actualDate.hour == sunriseH and actualDate.minute > sunriseM) or (actualDate.hour == sunsetH and actualDate.minute < sunsetM)):
