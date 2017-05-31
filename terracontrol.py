@@ -7,6 +7,7 @@
 #--- Imports ---
 
 import time
+import threading
 from datetime import datetime, timedelta
 import RPi.GPIO as GPIO
 import numpy as np
@@ -203,7 +204,33 @@ def read_temp(sensor):
   if equals_pos != -1:
     temp_string = lines[1][equals_pos+2:]
     temp_c = float(temp_string) / 1000.0
+    #TODO return bei else-zweig hinzufuegen
     return temp_c
+
+def thread_temp_1(sensor):
+  print "thread temp1 gestartet!!!"
+  global rawTemp1
+  rawTemp1 = read_temp(sensor)
+  print "thread temp1 fertig!!!"  
+
+def thread_temp_2(sensor):
+  print "thread temp2 gestartet!!!"
+  global rawTemp2
+  rawTemp2 = read_temp(sensor)
+  print "thread temp2 fertig!!!"
+  
+def thread_hum_1(sensor):
+  print "thread hum1 gestartet!!!"
+  global rawHum1, rawTempDHT1  
+  rawHum1, rawTempDHT1 = Adafruit_DHT.read_retry(sensor, PIN_DHT11_1)
+  print "thread hum1 fertig!!!"
+  
+def thread_hum_2(sensor):
+  print "thread hum2 gestartet!!!"
+  global rawHum2, rawTempDHT2  
+  rawHum2, rawTempDHT2 = Adafruit_DHT.read_retry(sensor, PIN_DHT11_2)
+  print "thread hum2 fertig!!!"
+  
 
 while 1 :
   actualTime = time.time()
@@ -212,6 +239,7 @@ while 1 :
   nextSInDays = (nextSaeuberung - actualDate).days + 1 # Anzahl der verbleibenden Tage
 
   # update buttons
+  print "update buttons"
 
   btn_select_pressed = 0
   btn_back_pressed = 0
@@ -240,6 +268,11 @@ while 1 :
 	btn_down_pressed = 1;
         some_btn_pressed = 1;
 
+  print "SEL: " + str(btn_select)
+  print "BACK: " + str(btn_back)
+  print "UP: " + str(btn_up)
+  print "DOWN: " + str(btn_down)
+
   prev_select = btn_select
   prev_back = btn_back
   prev_up = btn_up
@@ -247,13 +280,26 @@ while 1 :
   
   time.sleep(0.05) #debounce
 
+  print "update sensors"
   # update sensors
-  if ((actualTime - lastTempUpdate) > 2.5):
+  if ((actualTime - lastTempUpdate) > 5):
     lastTempUpdate = time.time()
-    rawTemp1 = read_temp(device_file1)
-    rawTemp2 = read_temp(device_file2)
-    rawHum1, rawTempDHT1 = Adafruit_DHT.read_retry(humSensor, PIN_DHT11_1)
-    rawHum2, rawTempDHT2 = Adafruit_DHT.read_retry(humSensor, PIN_DHT11_2)
+    print "read Temp1"
+    thrd1 = threading.Thread(target=thread_temp_1, args=(device_file1,))
+    thrd1.start()
+    print "read Temp2"
+    thrd2 = threading.Thread(target=thread_temp_2, args=(device_file2,))
+    thrd2.start()
+    print "read Hum1"
+    thrd3 = threading.Thread(target=thread_hum_1, args=(humSensor,))
+    thrd3.start()
+    print "read Hum2"
+    thrd4 = threading.Thread(target=thread_hum_2, args=(humSensor,))
+    thrd4.start()
+    thrd1.join()
+    thrd2.join()
+    thrd3.join()
+    thrd4.join()
     actualTemp = (rawTemp1 + rawTemp2) / 2
     print "actualTemp = " + str(actualTemp)
     if (rawHum1 < 100 and rawHum1 > 0):
@@ -276,6 +322,7 @@ while 1 :
     actualTemp = (averageTemp1 + averageTemp2) / 2
 
   # Regulation
+  print "Regulation"
 
   if ((actualDate.hour > sunriseH and actualDate.hour < sunsetH) or (actualDate.hour == sunriseH and actualDate.minute > sunriseM) or (actualDate.hour == sunsetH and actualDate.minute < sunsetM)):
     day = 1
@@ -339,7 +386,8 @@ while 1 :
       GPIO.output(PIN_LED_TEMPERATUR, GPIO.HIGH)
     else: 
       GPIO.output(PIN_LED_TEMPERATUR, GPIO.LOW)
-    
+  
+  print "LCD control"  
   # LCD backlight control
 
   if (some_btn_pressed == 1):
@@ -559,6 +607,7 @@ while 1 :
   disp.display()
 
   # write to log-file
+  print "log area"
 
   if ((actualTime - lastLog) > 5):
     lastLog = time.time()
@@ -566,7 +615,7 @@ while 1 :
     {
       "measurement": "terralog",
         "fields": {
-          "Temp1" : rawTemp1, "Temp2" : rawTemp2, "Hum1" : hum1, "Hum2" : hum2, "Temp" : actualTemp, "Hum" : humidity
+          "Temp1" : float(rawTemp1), "Temp2" : float(rawTemp2), "Hum1" : float(hum1), "Hum2" : float(hum2), "Temp" : float(actualTemp), "Hum" : float(humidity)
         }
       }
     ]
