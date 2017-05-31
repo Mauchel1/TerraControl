@@ -63,6 +63,7 @@ state = 11
 PIN_FOGGER = 17
 PIN_HEAT = 27
 PIN_COOLER = 22
+PIN_LIGHT = 12
 PIN_LED_FUETTERUNG = 16
 PIN_LED_SAEUBERUNG = 20
 PIN_LED_TEMPERATUR = 21
@@ -83,6 +84,7 @@ GPIO.setup(PIN_BUTTON_DOWN, GPIO.IN)
 GPIO.setup(PIN_BACKLIGHT_LCD, GPIO.OUT)
 GPIO.setup(PIN_FOGGER, GPIO.OUT)
 GPIO.setup(PIN_HEAT, GPIO.OUT)
+GPIO.setup(PIN_LIGHT, GPIO.OUT)
 GPIO.setup(PIN_COOLER, GPIO.OUT)
 GPIO.setup(PIN_LED_FUETTERUNG, GPIO.OUT)
 GPIO.setup(PIN_LED_SAEUBERUNG, GPIO.OUT)
@@ -282,6 +284,8 @@ while 1 :
   
   if (day):
     
+    GPIO.output(PIN_LIGHT, GPIO.HIGH)
+
     # Temperature Area
     if (actualTemp < tempDayLow):
       tempStable = 0
@@ -309,6 +313,7 @@ while 1 :
       foggerOn = 1
       
   else:
+    GPIO.output(PIN_LIGHT, GPIO.LOW)
     if (actualTemp < tempNightLow):
       GPIO.output(PIN_HEAT, GPIO.HIGH)
     elif (actualTemp > tempNightLow + tempHystereseNight):
