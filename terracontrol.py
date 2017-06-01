@@ -629,9 +629,11 @@ while 1 :
     print "Licht aus"
     if (actualTemp < tempNightLow):
       GPIO.output(PIN_HEAT, GPIO.HIGH)
+      tempStable = 0
       print "Hitze an"
     elif (actualTemp > tempNightLow + tempHystereseNight):
       print "Hitze aus"
+      tempStable = 1
       GPIO.output(PIN_HEAT, GPIO.LOW)
   
   if (foggerOn and (actualTime - lastFoggerOn) > 20):
