@@ -214,31 +214,22 @@ def read_temp(sensor):
     return temp_c
 
 def thread_temp_1(sensor):
-  print "thread temp1 gestartet!!!"
   global rawTemp1
   rawTemp1 = read_temp(sensor)
-  print "thread temp1 fertig!!!"  
 
 def thread_temp_2(sensor):
-  print "thread temp2 gestartet!!!"
   global rawTemp2
   rawTemp2 = read_temp(sensor)
-  print "thread temp2 fertig!!!"
   
 def thread_hum_1(sensor):
-  print "thread hum1 gestartet!!!"
   global rawHum1, rawTempDHT1  
   rawHum1, rawTempDHT1 = Adafruit_DHT.read_retry(sensor, PIN_DHT11_1)
-  print "thread hum1 fertig!!!"
   
 def thread_hum_2(sensor):
-  print "thread hum2 gestartet!!!"
   global rawHum2, rawTempDHT2  
   rawHum2, rawTempDHT2 = Adafruit_DHT.read_retry(sensor, PIN_DHT11_2)
-  print "thread hum2 fertig!!!"
 
 def thread_LCD(threadName):
-  print "thread LCD gestartet!!!"
   global actualDate
   global nextFInDays
   global nextSInDays
@@ -543,7 +534,6 @@ def thread_LCD(threadName):
  
     disp.image(image)
     disp.display()
-  print "thread LCD fertig!!!"  
 
 thrd_LCD = threading.Thread(target=thread_LCD, args=("Thread_LCD",))
 thrd_LCD.setDaemon(True)
@@ -558,16 +548,12 @@ while 1 :
   # update sensors
   if ((actualTime - lastTempUpdate) > 5):
     lastTempUpdate = time.time()
-    print "read Temp1"
     thrd1 = threading.Thread(target=thread_temp_1, args=(device_file1,))
     thrd1.start()
-    print "read Temp2"
     thrd2 = threading.Thread(target=thread_temp_2, args=(device_file2,))
     thrd2.start()
-    print "read Hum1"
     thrd3 = threading.Thread(target=thread_hum_1, args=(humSensor,))
     thrd3.start()
-    print "read Hum2"
     thrd4 = threading.Thread(target=thread_hum_2, args=(humSensor,))
     thrd4.start()
     thrd1.join()
