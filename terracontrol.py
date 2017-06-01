@@ -91,6 +91,12 @@ GPIO.setup(PIN_LED_FUETTERUNG, GPIO.OUT)
 GPIO.setup(PIN_LED_SAEUBERUNG, GPIO.OUT)
 GPIO.setup(PIN_LED_TEMPERATUR, GPIO.OUT)
 
+btn_select_pressed = 0
+btn_back_pressed = 0
+btn_up_pressed = 0
+btn_down_pressed = 0
+some_btn_pressed = 0
+
 prev_select = 1
 prev_back = 1
 prev_up = 1
@@ -230,7 +236,318 @@ def thread_hum_2(sensor):
   global rawHum2, rawTempDHT2  
   rawHum2, rawTempDHT2 = Adafruit_DHT.read_retry(sensor, PIN_DHT11_2)
   print "thread hum2 fertig!!!"
+
+def thread_LCD(threadName):
+  print "thread LCD gestartet!!!"
+  global actualDate
+  global nextFInDays
+  global nextSInDays
+  global nextFuetterung
+  global nextSaeuberung
+  global lastH
+  global state
+  global some_btn_pressed
+  global lastBacklightUpdate
+  global actualTime
+  global LCDDate
+  global lastTempUpdate
+  global lastLCDUpdate
+  global lastLog
+
+  global prev_select
+  global prev_back
+  global prev_up
+  global prev_down
+
+  global heaterOn
+  global coolerOn
+  global foggerOn
+  global humidity 
+  global actualTemp 
+  global rawTemp1 
+  global rawTemp2 
+  global rawHum1 
+  global hum1 
+  global rawHum2 
+  global hum2 
+  global humidityKrit 
+  global tempStable
+  global tempNightLow 
+  global tempDayLow 
+  global tempDayHigh 
+  global tempHystereseNight
+  global averageHum1Array
+  global averageHum2Array
+  global averageHum1
+  global averageHum2
+  global averageTemp1Array
+  global averageTemp2Array
+  global averageTemp1
+  global averageTemp2
+
+  global sunriseH
+  global sunriseM
+  global sunsetH
+  global sunsetM
+
+  # LCD backlight control
+  while 1 :
+
+    # update buttons
+    btn_select_pressed = 0
+    btn_back_pressed = 0 
+    btn_up_pressed = 0
+    btn_down_pressed = 0
+    some_btn_pressed = 0
+
+    btn_select = GPIO.input(PIN_BUTTON_SEL)
+    btn_back = GPIO.input(PIN_BUTTON_BACK)
+    btn_up = GPIO.input(PIN_BUTTON_UP)
+    btn_down = GPIO.input(PIN_BUTTON_DOWN)
+
+    if ((not prev_select) and btn_select):
+      btn_select_pressed = 1;
+      some_btn_pressed = 1;
+
+    if ((not prev_back) and btn_back):
+      btn_back_pressed = 1;
+      some_btn_pressed = 1;
+
+    if ((not prev_up) and btn_up):
+      btn_up_pressed = 1;
+      some_btn_pressed = 1;
+
+    if ((not prev_down) and btn_down):
+      btn_down_pressed = 1;
+      some_btn_pressed = 1;
+
+    prev_select = btn_select
+    prev_back = btn_back
+    prev_up = btn_up
+    prev_down = btn_down
   
+    time.sleep(0.05) #debounce
+
+    if (some_btn_pressed == 1):
+      GPIO.output(PIN_BACKLIGHT_LCD, GPIO.HIGH)
+      lastBacklightUpdate = time.time()
+      some_btn_pressed = 0
+
+    if ((actualTime - lastBacklightUpdate) > 3):
+      GPIO.output(PIN_BACKLIGHT_LCD, GPIO.LOW)
+
+    # write to LCD
+
+    draw.rectangle((0,0,LCD.LCDWIDTH, LCD.LCDHEIGHT), outline=255, fill=255)
+    LCDDate = time.strftime("%d.%m.%y %H:%M", time.localtime())
+
+    if state == 11:
+      draw.text((0,1), LCDDate, font=font)    
+      draw.text((0,13), 'Temp1: ' + ("%.2f" % rawTemp1) + ' C', font=font)
+      draw.text((0,25), 'Hum1: ' + ("%.1f" % hum1) + ' %', font=font)
+      draw.text((0,37), 'Fuetter: ' + str(nextFInDays) + " d", font=font)
+      if ((actualTime - lastLCDUpdate) > 5):
+        lastLCDUpdate = time.time()
+        state = 12
+      if btn_select_pressed:
+        state = 21
+    elif state == 12:
+      draw.text((0,1), LCDDate, font=font)    
+      draw.text((0,13), 'Temp2: ' + ("%.2f" % rawTemp2) + ' C', font=font)
+      draw.text((0,25), 'Hum2: ' + ("%.1f" % hum2) + ' %', font=font)
+      draw.text((0,37), 'Saeuber: ' + str(nextSInDays) + " d", font=font)
+      if ((actualTime - lastLCDUpdate) > 5):
+        lastLCDUpdate = time.time()
+        state = 11
+      if btn_select_pressed:
+        state = 21    
+    elif state == 21:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'Fuetterung', font=font)    
+      draw.text((10,13), 'Saeuberung', font=font)
+      draw.text((10,25), 'Haeutung', font=font)
+      draw.text((10,37), 'Licht an', font=font)
+      if btn_select_pressed:
+        state = 211
+      elif btn_back_pressed:
+        state = 11
+      elif btn_up_pressed:
+        state = 22
+      elif btn_down_pressed:
+        state = 24
+    elif state == 22:
+      draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+      draw.text((10,1), 'Fuetterung', font=font)    
+      draw.text((10,13), 'Saeuberung', font=font)
+      draw.text((10,25), 'Haeutung', font=font)
+      draw.text((10,37), 'Licht an', font=font)
+      if btn_select_pressed:
+        state = 221
+      elif btn_back_pressed:
+        state = 11
+      elif btn_up_pressed:
+        state = 23
+      elif btn_down_pressed:
+        state = 21
+    elif state == 23:
+      draw.polygon([(0,27), (6,30), (0,33)], outline=0, fill=0)
+      draw.text((10,1), 'Fuetterung', font=font)    
+      draw.text((10,13), 'Saeuberung', font=font)
+      draw.text((10,25), 'Haeutung', font=font)
+      draw.text((10,37), 'Licht an', font=font)
+      if btn_select_pressed:
+        state = 231
+      elif btn_back_pressed:
+        state = 11
+      elif btn_up_pressed:
+        state = 24
+      elif btn_down_pressed:
+        state = 22
+    elif state == 24:
+      draw.polygon([(0,39), (6,42), (0,45)], outline=0, fill=0)
+      draw.text((10,1), 'Fuetterung', font=font)    
+      draw.text((10,13), 'Saeuberung', font=font)
+      draw.text((10,25), 'Haeutung', font=font)
+      draw.text((10,37), 'Licht an', font=font)
+      if btn_select_pressed:
+        state = 11
+      elif btn_back_pressed:
+        state = 11
+      elif btn_up_pressed:
+        state = 21
+      elif btn_down_pressed:
+        state = 23
+    elif state == 211:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'naechste F.', font=font)    
+      draw.text((10,13), 'erfolgreich!', font=font)
+      draw.text((10,25), 'verweigert...', font=font)
+      if btn_select_pressed:
+        state = 2111
+        nextF = 5
+      elif btn_back_pressed:
+        state = 21
+      elif btn_up_pressed:
+        state = 212
+      elif btn_down_pressed:
+        state = 213
+    elif state == 212:
+      draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+      draw.text((10,1), 'naechste F.', font=font)    
+      draw.text((10,13), 'erfolgreich!', font=font)
+      draw.text((10,25), 'verweigert...', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/fuetterung.txt", "a") as f:
+          f.write("Fuetterung erfolgreich: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 21
+      elif btn_up_pressed:
+        state = 213
+      elif btn_down_pressed:
+        state = 211
+    elif state == 213:
+      draw.polygon([(0,27), (6,30), (0,33)], outline=0, fill=0)
+      draw.text((10,1), 'naechste F.', font=font)    
+      draw.text((10,13), 'erfolgreich!', font=font)
+      draw.text((10,25), 'verweigert...', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/fuetterung.txt", "a") as f:
+          f.write("Fuetterung verweigert: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 21
+      elif btn_up_pressed:
+        state = 211
+      elif btn_down_pressed:
+        state = 212
+    elif state == 221:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'heute gemacht', font=font)    
+      draw.text((10,13), 'naechste S.', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/saeuberungen.txt", "a") as f:
+          f.write("Saeuberung: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 22
+      elif btn_up_pressed:
+        state = 222
+      elif btn_down_pressed:
+        state = 222
+    elif state == 222:
+      draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+      draw.text((10,1), 'heute gemacht', font=font)    
+      draw.text((10,13), 'naechste S.', font=font)
+      if btn_select_pressed:
+        nextS = 5
+        state = 2221
+      elif btn_back_pressed:
+        state = 22
+      elif btn_up_pressed:
+        state = 221
+      elif btn_down_pressed:
+        state = 221
+    elif state == 231:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'heute gewesen', font=font)    
+      draw.text((0,25), 'letzte Haeutung:', font=font)
+      draw.text((20,37), lastH.strftime("%d.%m.%Y"), font=font)
+      if btn_select_pressed:
+        state = 11
+        lastH = datetime.now()
+        with open("/home/pi/terra/haeutungen.txt", "a") as f:
+          f.write("Haeutung: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 23
+    elif state == 2111:
+      draw.text((0,1), 'naechste F in:', font=font)    
+      draw.text((40,20), str(nextF), font=font)
+      draw.text((0,37), 'Tagen', font=font)
+      if btn_select_pressed:
+        state = 11
+        td = timedelta(days=nextF)
+        nextDate = actualDate + td
+        nextFuetterung = nextDate
+        with open("/home/pi/terra/fuetterung.txt", "a") as f:
+          f.write("naechste Fuetterung: " + nextDate.strftime("%B %d %Y") + "\n")
+      elif btn_back_pressed:
+        state = 211
+      elif btn_up_pressed:      
+        nextF += 1
+      elif btn_down_pressed:
+        nextF -= 1
+        if (nextF < 1):
+          nextF = 1
+    elif state == 2221:
+      draw.text((0,1), 'naechste S in:', font=font)    
+      draw.text((40,20), str(nextS), font=font)
+      draw.text((0,37), 'Wochen', font=font)
+      if btn_select_pressed:
+        state = 11
+        td = timedelta(days=nextS*7)
+        nextDate = actualDate + td
+        nextSaeuberung = nextDate
+        with open("/home/pi/terra/saeuberungen.txt", "a") as f:
+          f.write("naechste Saeuberung: " + nextDate.strftime("%B %d %Y") + "\n")
+      elif btn_back_pressed:
+        state = 222
+      elif btn_up_pressed:
+        nextS += 1
+      elif btn_down_pressed:       
+        nextS -= 1
+        if (nextS < 1):
+          nextS = 1
+    else:
+      print "error - invalid state"
+ 
+    disp.image(image)
+    disp.display()
+  print "thread LCD fertig!!!"  
+
+thrd_LCD = threading.Thread(target=thread_LCD, args=("Thread_LCD",))
+thrd_LCD.setDaemon(True)
+thrd_LCD.start()
 
 while 1 :
   actualTime = time.time()
@@ -238,49 +555,6 @@ while 1 :
   nextFInDays = (nextFuetterung - actualDate).days + 1 # Anzahl der verbleibenden Tage
   nextSInDays = (nextSaeuberung - actualDate).days + 1 # Anzahl der verbleibenden Tage
 
-  # update buttons
-  print "update buttons"
-
-  btn_select_pressed = 0
-  btn_back_pressed = 0
-  btn_up_pressed = 0
-  btn_down_pressed = 0
-  some_btn_pressed = 0
-
-  btn_select = GPIO.input(PIN_BUTTON_SEL)
-  btn_back = GPIO.input(PIN_BUTTON_BACK)
-  btn_up = GPIO.input(PIN_BUTTON_UP)
-  btn_down = GPIO.input(PIN_BUTTON_DOWN)
-
-  if ((not prev_select) and btn_select):
-	btn_select_pressed = 1;
-        some_btn_pressed = 1;
-
-  if ((not prev_back) and btn_back):
-	btn_back_pressed = 1;
-        some_btn_pressed = 1;
-
-  if ((not prev_up) and btn_up):
-	btn_up_pressed = 1;
-        some_btn_pressed = 1;
-
-  if ((not prev_down) and btn_down):
-	btn_down_pressed = 1;
-        some_btn_pressed = 1;
-
-  print "SEL: " + str(btn_select)
-  print "BACK: " + str(btn_back)
-  print "UP: " + str(btn_up)
-  print "DOWN: " + str(btn_down)
-
-  prev_select = btn_select
-  prev_back = btn_back
-  prev_up = btn_up
-  prev_down = btn_down
-  
-  time.sleep(0.05) #debounce
-
-  print "update sensors"
   # update sensors
   if ((actualTime - lastTempUpdate) > 5):
     lastTempUpdate = time.time()
@@ -322,7 +596,6 @@ while 1 :
     actualTemp = (averageTemp1 + averageTemp2) / 2
 
   # Regulation
-  print "Regulation"
 
   if ((actualDate.hour > sunriseH and actualDate.hour < sunsetH) or (actualDate.hour == sunriseH and actualDate.minute > sunriseM) or (actualDate.hour == sunsetH and actualDate.minute < sunsetM)):
     day = 1
@@ -387,227 +660,8 @@ while 1 :
     else: 
       GPIO.output(PIN_LED_TEMPERATUR, GPIO.LOW)
   
-  print "LCD control"  
-  # LCD backlight control
-
-  if (some_btn_pressed == 1):
-    GPIO.output(PIN_BACKLIGHT_LCD, GPIO.HIGH)
-    lastBacklightUpdate = time.time()
-    some_btn_pressed = 0
-
-  if ((actualTime - lastBacklightUpdate) > 3):
-    GPIO.output(PIN_BACKLIGHT_LCD, GPIO.LOW)
-
-  # write to LCD
-
-  draw.rectangle((0,0,LCD.LCDWIDTH, LCD.LCDHEIGHT), outline=255, fill=255)
-  LCDDate = time.strftime("%d.%m.%y %H:%M", time.localtime())
-
-  if state == 11:
-    draw.text((0,1), LCDDate, font=font)    
-    draw.text((0,13), 'Temp1: ' + ("%.2f" % rawTemp1) + ' C', font=font)
-    draw.text((0,25), 'Hum1: ' + ("%.1f" % hum1) + ' %', font=font)
-    draw.text((0,37), 'Fuetter: ' + str(nextFInDays) + " d", font=font)
-    if ((actualTime - lastLCDUpdate) > 5):
-      lastLCDUpdate = time.time()
-      state = 12
-    if btn_select_pressed:
-      state = 21
-  elif state == 12:
-    draw.text((0,1), LCDDate, font=font)    
-    draw.text((0,13), 'Temp2: ' + ("%.2f" % rawTemp2) + ' C', font=font)
-    draw.text((0,25), 'Hum2: ' + ("%.1f" % hum2) + ' %', font=font)
-    draw.text((0,37), 'Saeuber: ' + str(nextSInDays) + " d", font=font)
-    if ((actualTime - lastLCDUpdate) > 5):
-      lastLCDUpdate = time.time()
-      state = 11
-    if btn_select_pressed:
-      state = 21    
-  elif state == 21:
-    draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
-    draw.text((10,1), 'Fuetterung', font=font)    
-    draw.text((10,13), 'Saeuberung', font=font)
-    draw.text((10,25), 'Haeutung', font=font)
-    draw.text((10,37), 'Licht an', font=font)
-    if btn_select_pressed:
-      state = 211
-    elif btn_back_pressed:
-      state = 11
-    elif btn_up_pressed:
-      state = 22
-    elif btn_down_pressed:
-      state = 24
-  elif state == 22:
-    draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
-    draw.text((10,1), 'Fuetterung', font=font)    
-    draw.text((10,13), 'Saeuberung', font=font)
-    draw.text((10,25), 'Haeutung', font=font)
-    draw.text((10,37), 'Licht an', font=font)
-    if btn_select_pressed:
-      state = 221
-    elif btn_back_pressed:
-      state = 11
-    elif btn_up_pressed:
-      state = 23
-    elif btn_down_pressed:
-      state = 21
-  elif state == 23:
-    draw.polygon([(0,27), (6,30), (0,33)], outline=0, fill=0)
-    draw.text((10,1), 'Fuetterung', font=font)    
-    draw.text((10,13), 'Saeuberung', font=font)
-    draw.text((10,25), 'Haeutung', font=font)
-    draw.text((10,37), 'Licht an', font=font)
-    if btn_select_pressed:
-      state = 231
-    elif btn_back_pressed:
-      state = 11
-    elif btn_up_pressed:
-      state = 24
-    elif btn_down_pressed:
-      state = 22
-  elif state == 24:
-    draw.polygon([(0,39), (6,42), (0,45)], outline=0, fill=0)
-    draw.text((10,1), 'Fuetterung', font=font)    
-    draw.text((10,13), 'Saeuberung', font=font)
-    draw.text((10,25), 'Haeutung', font=font)
-    draw.text((10,37), 'Licht an', font=font)
-    if btn_select_pressed:
-      state = 11
-    elif btn_back_pressed:
-      state = 11
-    elif btn_up_pressed:
-      state = 21
-    elif btn_down_pressed:
-      state = 23
-  elif state == 211:
-    draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
-    draw.text((10,1), 'naechste F.', font=font)    
-    draw.text((10,13), 'erfolgreich!', font=font)
-    draw.text((10,25), 'verweigert...', font=font)
-    if btn_select_pressed:
-      state = 2111
-      nextF = 5
-    elif btn_back_pressed:
-      state = 21
-    elif btn_up_pressed:
-      state = 212
-    elif btn_down_pressed:
-      state = 213
-  elif state == 212:
-    draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
-    draw.text((10,1), 'naechste F.', font=font)    
-    draw.text((10,13), 'erfolgreich!', font=font)
-    draw.text((10,25), 'verweigert...', font=font)
-    if btn_select_pressed:
-      state = 11
-      with open("/home/pi/terra/fuetterung.txt", "a") as f:
-        f.write("Fuetterung erfolgreich: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
-    elif btn_back_pressed:
-      state = 21
-    elif btn_up_pressed:
-      state = 213
-    elif btn_down_pressed:
-      state = 211
-  elif state == 213:
-    draw.polygon([(0,27), (6,30), (0,33)], outline=0, fill=0)
-    draw.text((10,1), 'naechste F.', font=font)    
-    draw.text((10,13), 'erfolgreich!', font=font)
-    draw.text((10,25), 'verweigert...', font=font)
-    if btn_select_pressed:
-      state = 11
-      with open("/home/pi/terra/fuetterung.txt", "a") as f:
-        f.write("Fuetterung verweigert: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
-    elif btn_back_pressed:
-      state = 21
-    elif btn_up_pressed:
-      state = 211
-    elif btn_down_pressed:
-      state = 212
-  elif state == 221:
-    draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
-    draw.text((10,1), 'heute gemacht', font=font)    
-    draw.text((10,13), 'naechste S.', font=font)
-    if btn_select_pressed:
-      state = 11
-      with open("/home/pi/terra/saeuberungen.txt", "a") as f:
-        f.write("Saeuberung: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
-    elif btn_back_pressed:
-      state = 22
-    elif btn_up_pressed:
-      state = 222
-    elif btn_down_pressed:
-      state = 222
-  elif state == 222:
-    draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
-    draw.text((10,1), 'heute gemacht', font=font)    
-    draw.text((10,13), 'naechste S.', font=font)
-    if btn_select_pressed:
-      nextS = 5
-      state = 2221
-    elif btn_back_pressed:
-      state = 22
-    elif btn_up_pressed:
-      state = 221
-    elif btn_down_pressed:
-      state = 221
-  elif state == 231:
-    draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
-    draw.text((10,1), 'heute gewesen', font=font)    
-    draw.text((0,25), 'letzte Haeutung:', font=font)
-    draw.text((20,37), lastH.strftime("%d.%m.%Y"), font=font)
-    if btn_select_pressed:
-      state = 11
-      lastH = datetime.now()
-      with open("/home/pi/terra/haeutungen.txt", "a") as f:
-        f.write("Haeutung: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
-    elif btn_back_pressed:
-      state = 23
-  elif state == 2111:
-    draw.text((0,1), 'naechste F in:', font=font)    
-    draw.text((40,20), str(nextF), font=font)
-    draw.text((0,37), 'Tagen', font=font)
-    if btn_select_pressed:
-      state = 11
-      td = timedelta(days=nextF)
-      nextDate = actualDate + td
-      nextFuetterung = nextDate
-      with open("/home/pi/terra/fuetterung.txt", "a") as f:
-        f.write("naechste Fuetterung: " + nextDate.strftime("%B %d %Y") + "\n")
-    elif btn_back_pressed:
-      state = 211
-    elif btn_up_pressed:      
-      nextF += 1
-    elif btn_down_pressed:
-      nextF -= 1
-      if (nextF < 1):
-        nextF = 1
-  elif state == 2221:
-    draw.text((0,1), 'naechste S in:', font=font)    
-    draw.text((40,20), str(nextS), font=font)
-    draw.text((0,37), 'Wochen', font=font)
-    if btn_select_pressed:
-      state = 11
-      td = timedelta(days=nextS*7)
-      nextDate = actualDate + td
-      nextSaeuberung = nextDate
-      with open("/home/pi/terra/saeuberungen.txt", "a") as f:
-        f.write("naechste Saeuberung: " + nextDate.strftime("%B %d %Y") + "\n")
-    elif btn_back_pressed:
-      state = 222
-    elif btn_up_pressed:
-      nextS += 1
-    elif btn_down_pressed:       
-      nextS -= 1
-      if (nextS < 1):
-        nextS = 1
-  else:
-    print "error - invalid state"
- 
-  disp.image(image)
-  disp.display()
 
   # write to log-file
-  print "log area"
 
   if ((actualTime - lastLog) > 5):
     lastLog = time.time()
