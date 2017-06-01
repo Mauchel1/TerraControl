@@ -591,38 +591,47 @@ while 1 :
   if (day):
     
     GPIO.output(PIN_LIGHT, GPIO.HIGH)
+    print "Licht an"
 
     # Temperature Area
     if (actualTemp < tempDayLow):
       tempStable = 0
       heaterOn = 1
       GPIO.output(PIN_HEAT, GPIO.HIGH)
+      print "Hitze an"
     elif (actualTemp > tempDayHigh):
       tempStable = 0
       coolerOn = 1
       GPIO.output(PIN_COOLER, GPIO.HIGH)
+      print "Luefter an"
     else:
       tempStable = 1
       
     if (heaterOn and actualTemp > (tempDayLow + ((tempDayHigh - tempDayLow) / 2)) ):
       heaterOn = 0
       GPIO.output(PIN_HEAT, GPIO.LOW)
+      print "Hitze aus"
           
     if (coolerOn and actualTemp < (tempDayLow + ((tempDayHigh - tempDayLow) / 2)) ):
       coolerOn = 0
       GPIO.output(PIN_COOLER, GPIO.LOW)
+      print "Luefter aus"
           
     # Humidity Area
     if (tempStable and (humidity < humidityKrit) and ((actualTime - lastFoggerOn) > 300)):
       GPIO.output(PIN_FOGGER, GPIO.HIGH)
+      print "Nebel an"
       lastFoggerOn = time.time()
       foggerOn = 1
       
   else:
     GPIO.output(PIN_LIGHT, GPIO.LOW)
+    print "Licht aus"
     if (actualTemp < tempNightLow):
       GPIO.output(PIN_HEAT, GPIO.HIGH)
+      print "Hitze an"
     elif (actualTemp > tempNightLow + tempHystereseNight):
+      print "Hitze aus"
       GPIO.output(PIN_HEAT, GPIO.LOW)
   
   if (foggerOn and (actualTime - lastFoggerOn) > 20):
@@ -631,20 +640,23 @@ while 1 :
 
   # Warning LED's
   
-    if (nextFInDays < 3):
-      GPIO.output(PIN_LED_FUETTERUNG, GPIO.HIGH)
-    else: 
-      GPIO.output(PIN_LED_FUETTERUNG, GPIO.LOW)
+  if (nextFInDays < 3):
+    GPIO.output(PIN_LED_FUETTERUNG, GPIO.HIGH)
+    print "LED Fuetterung an"
+  else: 
+    GPIO.output(PIN_LED_FUETTERUNG, GPIO.LOW)
     
-    if (nextSInDays < 3):
-      GPIO.output(PIN_LED_SAEUBERUNG, GPIO.HIGH)
-    else: 
-      GPIO.output(PIN_LED_SAEUBERUNG, GPIO.LOW)
+  if (nextSInDays < 3):
+    GPIO.output(PIN_LED_SAEUBERUNG, GPIO.HIGH)
+    print "LED Saeuberung an"
+  else: 
+    GPIO.output(PIN_LED_SAEUBERUNG, GPIO.LOW)
     
-    if (not tempStable):
-      GPIO.output(PIN_LED_TEMPERATUR, GPIO.HIGH)
-    else: 
-      GPIO.output(PIN_LED_TEMPERATUR, GPIO.LOW)
+  if (not tempStable):
+    print "LED TEMP an"
+    GPIO.output(PIN_LED_TEMPERATUR, GPIO.HIGH)
+  else: 
+    GPIO.output(PIN_LED_TEMPERATUR, GPIO.LOW)
   
 
   # write to log-file
