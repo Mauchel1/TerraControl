@@ -540,53 +540,59 @@ thrd_LCD.setDaemon(True)
 thrd_LCD.start()
 
 while 1 :
-  actualTime = time.time()
-  actualDate = datetime.now()
-  nextFInDays = (nextFuetterung - actualDate).days + 1 # Anzahl der verbleibenden Tage
-  nextSInDays = (nextSaeuberung - actualDate).days + 1 # Anzahl der verbleibenden Tage
+  while 1:
+    actualTime = time.time()
+    actualDate = datetime.now()
+    nextFInDays = (nextFuetterung - actualDate).days + 1 # Anzahl der verbleibenden Tage
+    nextSInDays = (nextSaeuberung - actualDate).days + 1 # Anzahl der verbleibenden Tage
 
-  # update sensors
-  if ((actualTime - lastTempUpdate) > 5):
-    lastTempUpdate = time.time()
-    thrd1 = threading.Thread(target=thread_temp_1, args=(device_file1,))
-    thrd1.start()
-    thrd2 = threading.Thread(target=thread_temp_2, args=(device_file2,))
-    thrd2.start()
-    thrd3 = threading.Thread(target=thread_hum_1, args=(humSensor,))
-    thrd3.start()
-    thrd4 = threading.Thread(target=thread_hum_2, args=(humSensor,))
-    thrd4.start()
-    thrd1.join()
-    thrd2.join()
-    thrd3.join()
-    thrd4.join()
-    actualTemp = (rawTemp1 + rawTemp2) / 2
-    print "actualTemp = " + str(actualTemp)
-    if (rawHum1 < 100 and rawHum1 > 0):
-      hum1 = rawHum1
-    if (rawHum2 < 100 and rawHum2 > 0):
-      hum2 = rawHum2
-    averageHum1Array = np.insert(averageHum1Array, 0, hum1)
-    averageHum1Array = np.resize(averageHum1Array, 5)
-    averageHum1 = np.mean(averageHum1Array)
-    averageHum2Array = np.insert(averageHum2Array, 0, hum2)
-    averageHum2Array = np.resize(averageHum2Array, 5)
-    averageHum2 = np.mean(averageHum2Array)
-    humidity = (averageHum1 + averageHum2) / 2
-    averageTemp1Array = np.insert(averageTemp1Array, 0, rawTemp1)
-    averageTemp1Array = np.resize(averageTemp1Array, 5)
-    averageTemp1 = np.mean(averageTemp1Array)
-    averageTemp2Array = np.insert(averageTemp2Array, 0, rawTemp2)
-    averageTemp2Array = np.resize(averageTemp2Array, 5)
-    averageTemp2 = np.mean(averageTemp2Array)
-    actualTemp = (averageTemp1 + averageTemp2) / 2
+    # update sensors
+    if ((actualTime - lastTempUpdate) > 4):
+      lastTempUpdate = time.time()
+      thrd1 = threading.Thread(target=thread_temp_1, args=(device_file1,))
+      thrd1.start()
+      thrd2 = threading.Thread(target=thread_temp_2, args=(device_file2,))
+      thrd2.start()
+      thrd3 = threading.Thread(target=thread_hum_1, args=(humSensor,))
+      thrd3.start()
+      thrd4 = threading.Thread(target=thread_hum_2, args=(humSensor,))
+      thrd4.start()
+      thrd1.join()
+      thrd2.join()
+      thrd3.join()
+      thrd4.join()
+      actualTemp = (rawTemp1 + rawTemp2) / 2
+      print "actualTemp = " + str(actualTemp)
+      if (rawHum1 < 100 and rawHum1 > 0):
+        hum1 = rawHum1
+      if (rawHum2 < 100 and rawHum2 > 0):
+        hum2 = rawHum2
+      averageHum1Array = np.insert(averageHum1Array, 0, hum1)
+      averageHum1Array = np.resize(averageHum1Array, 5)
+      averageHum1 = np.mean(averageHum1Array)
+      averageHum2Array = np.insert(averageHum2Array, 0, hum2)
+      averageHum2Array = np.resize(averageHum2Array, 5)
+      averageHum2 = np.mean(averageHum2Array)
+      humidity = (averageHum1 + averageHum2) / 2
+      averageTemp1Array = np.insert(averageTemp1Array, 0, rawTemp1)
+      averageTemp1Array = np.resize(averageTemp1Array, 5)
+      averageTemp1 = np.mean(averageTemp1Array)
+      averageTemp2Array = np.insert(averageTemp2Array, 0, rawTemp2)
+      averageTemp2Array = np.resize(averageTemp2Array, 5)
+      averageTemp2 = np.mean(averageTemp2Array)
+      actualTemp = (averageTemp1 + averageTemp2) / 2
+
+      if (np.count_nonzero(averageTemp1Array) == 5): # bei Programmstart das array mit werten fuellen
+        break
 
   # Regulation
 
   if ((actualDate.hour > sunriseH and actualDate.hour < sunsetH) or (actualDate.hour == sunriseH and actualDate.minute > sunriseM) or (actualDate.hour == sunsetH and actualDate.minute < sunsetM)):
     day = 1
+    print "day"
   else:
     day = 0
+    print "night"
   
   if (day):
     
