@@ -116,8 +116,8 @@ hum2 = 50
 humidityKrit = 40
 tempStable = 0
 tempNightLow = 18
-tempDayLow = 28
-tempDayHigh = 32
+tempDayLow = 26
+tempDayHigh = 31
 tempHystereseNight = 2
 averageHum1Array = np.zeros(5)
 averageHum2Array = np.zeros(5)
@@ -596,55 +596,55 @@ while 1 :
   
   if (day):
     
-    GPIO.output(PIN_LIGHT, GPIO.HIGH)
+    GPIO.output(PIN_LIGHT, GPIO.LOW)
     print "Licht an"
 
     # Temperature Area
     if (actualTemp < tempDayLow):
       tempStable = 0
       heaterOn = 1
-      GPIO.output(PIN_HEAT, GPIO.HIGH)
+      GPIO.output(PIN_HEAT, GPIO.LOW)
       print "Hitze an"
     elif (actualTemp > tempDayHigh):
       tempStable = 0
       coolerOn = 1
-      GPIO.output(PIN_COOLER, GPIO.HIGH)
+      GPIO.output(PIN_COOLER, GPIO.LOW)
       print "Luefter an"
     else:
       tempStable = 1
       
     if (heaterOn and actualTemp > (tempDayLow + ((tempDayHigh - tempDayLow) / 2)) ):
       heaterOn = 0
-      GPIO.output(PIN_HEAT, GPIO.LOW)
+      GPIO.output(PIN_HEAT, GPIO.HIGH)
       print "Hitze aus"
           
     if (coolerOn and actualTemp < (tempDayLow + ((tempDayHigh - tempDayLow) / 2)) ):
       coolerOn = 0
-      GPIO.output(PIN_COOLER, GPIO.LOW)
+      GPIO.output(PIN_COOLER, GPIO.HIGH)
       print "Luefter aus"
           
     # Humidity Area
     if (tempStable and (humidity < humidityKrit) and ((actualTime - lastFoggerOn) > 300)):
-      GPIO.output(PIN_FOGGER, GPIO.HIGH)
+      GPIO.output(PIN_FOGGER, GPIO.LOW)
       print "Nebel an"
       lastFoggerOn = time.time()
       foggerOn = 1
       
   else:
-    GPIO.output(PIN_LIGHT, GPIO.LOW)
+    GPIO.output(PIN_LIGHT, GPIO.HIGH)
     print "Licht aus"
     if (actualTemp < tempNightLow):
-      GPIO.output(PIN_HEAT, GPIO.HIGH)
+      GPIO.output(PIN_HEAT, GPIO.LOW)
       tempStable = 0
       print "Hitze an"
     elif (actualTemp > tempNightLow + tempHystereseNight):
       print "Hitze aus"
       tempStable = 1
-      GPIO.output(PIN_HEAT, GPIO.LOW)
+      GPIO.output(PIN_HEAT, GPIO.HIGH)
   
   if (foggerOn and (actualTime - lastFoggerOn) > 20):
     foggerOn = 0
-    GPIO.output(PIN_FOGGER, GPIO.LOW)
+    GPIO.output(PIN_FOGGER, GPIO.HIGH)
 
   # Warning LED's
   
