@@ -36,6 +36,7 @@ lastTempUpdate = actualTime
 lastLCDUpdate = actualTime
 lastBacklightUpdate = actualTime
 lastLog = actualTime
+lastFoggerOn = actualTime
 
 #18b20 temp sensor
 os.system('modprobe w1-gpio') 
@@ -128,9 +129,9 @@ averageTemp2Array = np.zeros(5)
 averageTemp1 = 25
 averageTemp2 = 25
 
-sunriseH = 8
+sunriseH = 9
 sunriseM = 15
-sunsetH = 21
+sunsetH = 20
 sunsetM = 20
 
 # Raspberry Pi hardware SPI config:
@@ -624,11 +625,11 @@ while 1 :
       print "Luefter aus"
           
     # Humidity Area
-    if (tempStable and (humidity < humidityKrit) and ((actualTime - lastFoggerOn) > 300)):
-      GPIO.output(PIN_FOGGER, GPIO.LOW)
-      print "Nebel an"
-      lastFoggerOn = time.time()
-      foggerOn = 1
+    #if (tempStable and (humidity < humidityKrit) and ((actualTime - lastFoggerOn) > 300)):
+    #  GPIO.output(PIN_FOGGER, GPIO.LOW)
+    #  print "Nebel an"
+    #  lastFoggerOn = time.time()
+    #  foggerOn = 1
       
   else:
     GPIO.output(PIN_LIGHT, GPIO.HIGH)
