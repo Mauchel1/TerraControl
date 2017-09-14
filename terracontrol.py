@@ -429,15 +429,59 @@ def thread_LCD(threadName):
       draw.text((10,13), 'erfolgreich!', font=font)
       draw.text((10,25), 'verweigert...', font=font)
       if btn_select_pressed:
-        state = 11
-        with open("/home/pi/terra/fuetterung.txt", "a") as f:
-          f.write("Fuetterung erfolgreich: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+        state = 2121
       elif btn_back_pressed:
         state = 21
       elif btn_up_pressed:
         state = 213
       elif btn_down_pressed:
         state = 211
+    elif state == 2121:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'erfolg er', font=font)    
+      draw.text((10,13), 'erfolg sie', font=font)
+      draw.text((10,25), 'beide', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/fuetterung.txt", "a") as f:
+          f.write("Fuetterung erfolgreich ER: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 212
+      elif btn_up_pressed:
+        state = 2122
+      elif btn_down_pressed:
+        state = 2123
+    elif state == 2122:
+      draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+      draw.text((10,1), 'erfolg er', font=font)    
+      draw.text((10,13), 'erfolg sie', font=font)
+      draw.text((10,25), 'beide', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/fuetterung.txt", "a") as f:
+          f.write("Fuetterung erfolgreich SIE: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 212
+      elif btn_up_pressed:
+        state = 2123
+      elif btn_down_pressed:
+        state = 2121
+    elif state == 2123:
+      draw.polygon([(0,27), (6,30), (0,33)], outline=0, fill=0)
+      draw.text((10,1), 'erfolg er', font=font)    
+      draw.text((10,13), 'erfolg sie', font=font)
+      draw.text((10,25), 'beide', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/fuetterung.txt", "a") as f:
+          f.write("Fuetterung erfolgreich ER: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+          f.write("Fuetterung erfolgreich SIE: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 212
+      elif btn_up_pressed:
+        state = 2121
+      elif btn_down_pressed:
+        state = 2122
     elif state == 213:
       draw.polygon([(0,27), (6,30), (0,33)], outline=0, fill=0)
       draw.text((10,1), 'naechste F.', font=font)    
