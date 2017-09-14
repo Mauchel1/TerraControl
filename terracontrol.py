@@ -669,7 +669,7 @@ while 1 :
       averageTemp2Array = np.insert(averageTemp2Array, 0, rawTemp2)
       averageTemp2Array = np.resize(averageTemp2Array, 5)
       averageTemp2 = np.mean(averageTemp2Array)
-      actualTemp = (averageTemp1 + averageTemp2) / 2
+      actualTemp = (averageTemp1 * 0.25) + (averageTemp2 * 0.75)
 
       if (np.count_nonzero(averageTemp1Array) == 5): # bei Programmstart das array mit werten fuellen
         break
