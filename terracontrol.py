@@ -488,15 +488,59 @@ def thread_LCD(threadName):
       draw.text((10,13), 'erfolgreich!', font=font)
       draw.text((10,25), 'verweigert...', font=font)
       if btn_select_pressed:
-        state = 11
-        with open("/home/pi/terra/fuetterung.txt", "a") as f:
-          f.write("Fuetterung verweigert: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+        state = 2131
       elif btn_back_pressed:
         state = 21
       elif btn_up_pressed:
         state = 211
       elif btn_down_pressed:
         state = 212
+    elif state == 2131:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'verweig. er', font=font)    
+      draw.text((10,13), 'verweig. sie', font=font)
+      draw.text((10,25), 'beide', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/fuetterung.txt", "a") as f:
+          f.write("Fuetterung verweigert ER: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 213
+      elif btn_up_pressed:
+        state = 2132
+      elif btn_down_pressed:
+        state = 2133
+    elif state == 2132:
+      draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+      draw.text((10,1), 'verweig. er', font=font)    
+      draw.text((10,13), 'verweig. sie', font=font)
+      draw.text((10,25), 'beide', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/fuetterung.txt", "a") as f:
+          f.write("Fuetterung verweigert SIE: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 213
+      elif btn_up_pressed:
+        state = 2133
+      elif btn_down_pressed:
+        state = 2131
+    elif state == 2133:
+      draw.polygon([(0,27), (6,30), (0,33)], outline=0, fill=0)
+      draw.text((10,1), 'verweig. er', font=font)    
+      draw.text((10,13), 'verweig. sie', font=font)
+      draw.text((10,25), 'beide', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/fuetterung.txt", "a") as f:
+          f.write("Fuetterung verweigert ER: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+          f.write("Fuetterung verweigert SIE: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 213
+      elif btn_up_pressed:
+        state = 2131
+      elif btn_down_pressed:
+        state = 2132
     elif state == 221:
       draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
       draw.text((10,1), 'heute gemacht', font=font)    
