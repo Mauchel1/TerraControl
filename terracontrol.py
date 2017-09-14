@@ -73,6 +73,7 @@ PIN_BUTTON_SEL = 6
 PIN_BUTTON_BACK = 13
 PIN_BUTTON_UP = 19
 PIN_BUTTON_DOWN = 26
+#PIN_BUTTON_PAUSE =
 PIN_BACKLIGHT_LCD = 25
 PIN_DHT11_1 = 14
 PIN_DHT11_2 = 15
@@ -83,6 +84,7 @@ GPIO.setup(PIN_BUTTON_SEL, GPIO.IN)
 GPIO.setup(PIN_BUTTON_BACK, GPIO.IN) 
 GPIO.setup(PIN_BUTTON_UP, GPIO.IN) 
 GPIO.setup(PIN_BUTTON_DOWN, GPIO.IN) 
+#GPIO.setup(PIN_BUTTON_PAUSE, GPIO.IN)
 GPIO.setup(PIN_BACKLIGHT_LCD, GPIO.OUT)
 GPIO.setup(PIN_FOGGER, GPIO.OUT)
 GPIO.setup(PIN_HEAT, GPIO.OUT)
@@ -97,6 +99,7 @@ btn_back_pressed = 0
 btn_up_pressed = 0
 btn_down_pressed = 0
 some_btn_pressed = 0
+btn_pause_pressed = 0
 
 prev_select = 1
 prev_back = 1
@@ -634,7 +637,11 @@ while 1 :
     actualDate = datetime.now()
     nextFInDays = (nextFuetterung - actualDate).days + 1 # Anzahl der verbleibenden Tage
     nextSInDays = (nextSaeuberung - actualDate).days + 1 # Anzahl der verbleibenden Tage
-
+    
+    while (btn_pause_pressed == 1):
+      time.sleep(1)
+      #btn_pause_pressed = GPIO.input(PIN_BUTTON_PAUSE)
+    
     # update sensors
     if ((actualTime - lastTempUpdate) > 4):
       lastTempUpdate = time.time()
