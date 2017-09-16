@@ -160,17 +160,25 @@ draw.rectangle((0,0,LCD.LCDWIDTH, LCD.LCDHEIGHT), outline=255, fill=255)
 font = ImageFont.load_default()
 
 # get last Dates
-lastH = datetime.now()
+lastHhe = datetime.now()
+lastHshe = datetime.now()
 
 infile = open('/home/pi/terra/haeutungen.txt')
 lines = infile.readlines()
 infile.close()
 
 for revert_line in lines [::-1]:
-  if "Haeutung: " in revert_line:
-    line = revert_line[10:] #ersten Teil loeschen
+  if "Haeutung ER: " in revert_line:
+    line = revert_line[13:] #ersten Teil loeschen
     line = line.splitlines() #letztes \n entfernen
-    lastH = datetime.strptime(line[0], "%a, %d %b %Y")
+    lastHhe = datetime.strptime(line[0], "%a, %d %b %Y")
+    break
+
+for revert_line in lines [::-1]:
+  if "Haeutung SIE: " in revert_line:
+    line = revert_line[14:] #ersten Teil loeschen
+    line = line.splitlines() #letztes \n entfernen
+    lastHshe = datetime.strptime(line[0], "%a, %d %b %Y")
     break
 
 # get next Dates
@@ -239,7 +247,8 @@ def thread_LCD(threadName):
   global nextSInDays
   global nextFuetterung
   global nextSaeuberung
-  global lastH
+  global lastHhe
+  global lastHshe
   global state
   global some_btn_pressed
   global lastBacklightUpdate
@@ -573,16 +582,52 @@ def thread_LCD(threadName):
         state = 221
     elif state == 231:
       draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
-      draw.text((10,1), 'heute gewesen', font=font)    
-      draw.text((0,25), 'letzte Haeutung:', font=font)
-      draw.text((20,37), lastH.strftime("%d.%m.%Y"), font=font)
+      draw.text((10,1), 'ER', font=font)    
+      draw.text((10,13), 'SIE', font=font)
       if btn_select_pressed:
-        state = 11
-        lastH = datetime.now()
-        with open("/home/pi/terra/haeutungen.txt", "a") as f:
-          f.write("Haeutung: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+        state = 2311
       elif btn_back_pressed:
         state = 23
+      elif btn_up_pressed:
+        state = 232
+      elif btn_down_pressed:
+        state = 232
+    elif state == 2311:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'war heute ER', font=font)    
+      draw.text((0,25), 'letzte Haeutung:', font=font)
+      draw.text((20,37), lastHhe.strftime("%d.%m.%Y"), font=font)
+      if btn_select_pressed:
+        state = 11
+        lastHhe = datetime.now()
+        with open("/home/pi/terra/haeutungen.txt", "a") as f:
+          f.write("Haeutung ER: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 231
+    elif state == 232:
+      draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+      draw.text((10,1), 'ER', font=font)    
+      draw.text((10,13), 'SIE', font=font)
+      if btn_select_pressed:
+        state = 2321
+      elif btn_back_pressed:
+        state = 23
+      elif btn_up_pressed:
+        state = 231
+      elif btn_down_pressed:
+        state = 231
+    elif state == 2321:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'war heute SIE', font=font)    
+      draw.text((0,25), 'letzte Haeutung:', font=font)
+      draw.text((20,37), lastHshe.strftime("%d.%m.%Y"), font=font)
+      if btn_select_pressed:
+        state = 11
+        lastHshe = datetime.now()
+        with open("/home/pi/terra/haeutungen.txt", "a") as f:
+          f.write("Haeutung SIE: " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 232
     elif state == 2111:
       draw.text((0,1), 'naechste F in:', font=font)    
       draw.text((40,20), str(nextF), font=font)
