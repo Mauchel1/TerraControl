@@ -120,8 +120,8 @@ hum2 = 50
 humidityKrit = 40
 tempStable = 0
 tempNightLow = 18
-tempDayLow = 26
-tempDayHigh = 31
+tempDayLow = 25.5
+tempDayHigh = 30
 tempHystereseNight = 2
 averageHum1Array = np.zeros(5)
 averageHum2Array = np.zeros(5)
@@ -789,13 +789,13 @@ while 1 :
 
   # Warning LED's
   
-  if (nextFInDays < 3):
+  if (nextFInDays < 1):
     GPIO.output(PIN_LED_FUETTERUNG, GPIO.HIGH)
     print "LED Fuetterung an"
   else: 
     GPIO.output(PIN_LED_FUETTERUNG, GPIO.LOW)
     
-  if (nextSInDays < 3):
+  if (nextSInDays < 2):
     GPIO.output(PIN_LED_SAEUBERUNG, GPIO.HIGH)
     print "LED Saeuberung an"
   else: 
