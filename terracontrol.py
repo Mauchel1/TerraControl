@@ -73,7 +73,7 @@ PIN_BUTTON_SEL = 6
 PIN_BUTTON_BACK = 13
 PIN_BUTTON_UP = 19
 PIN_BUTTON_DOWN = 26
-#PIN_BUTTON_PAUSE =
+PIN_BUTTON_PAUSE = 18
 PIN_BACKLIGHT_LCD = 25
 PIN_DHT11_1 = 14
 PIN_DHT11_2 = 15
@@ -84,7 +84,7 @@ GPIO.setup(PIN_BUTTON_SEL, GPIO.IN)
 GPIO.setup(PIN_BUTTON_BACK, GPIO.IN) 
 GPIO.setup(PIN_BUTTON_UP, GPIO.IN) 
 GPIO.setup(PIN_BUTTON_DOWN, GPIO.IN) 
-#GPIO.setup(PIN_BUTTON_PAUSE, GPIO.IN)
+GPIO.setup(PIN_BUTTON_PAUSE, GPIO.IN)
 GPIO.setup(PIN_BACKLIGHT_LCD, GPIO.OUT)
 GPIO.setup(PIN_FOGGER, GPIO.OUT)
 GPIO.setup(PIN_HEAT, GPIO.OUT)
@@ -120,8 +120,8 @@ hum2 = 50
 humidityKrit = 40
 tempStable = 0
 tempNightLow = 18
-tempDayLow = 25.5
-tempDayHigh = 30
+tempDayLow = 24.5
+tempDayHigh = 27.5
 tempHystereseNight = 2
 averageHum1Array = np.zeros(5)
 averageHum2Array = np.zeros(5)
@@ -683,9 +683,10 @@ while 1 :
     nextFInDays = (nextFuetterung - actualDate).days + 1 # Anzahl der verbleibenden Tage
     nextSInDays = (nextSaeuberung - actualDate).days + 1 # Anzahl der verbleibenden Tage
     
+    btn_pause_pressed = GPIO.input(PIN_BUTTON_PAUSE)
     while (btn_pause_pressed == 1):
       time.sleep(1)
-      #btn_pause_pressed = GPIO.input(PIN_BUTTON_PAUSE)
+      btn_pause_pressed = GPIO.input(PIN_BUTTON_PAUSE)
     
     # update sensors
     if ((actualTime - lastTempUpdate) > 4):
