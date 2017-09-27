@@ -132,8 +132,10 @@ averageTemp2Array = np.zeros(5)
 averageTemp1 = 25
 averageTemp2 = 25
 
+sunrise = 9
 sunriseH = 9
 sunriseM = 15
+sunset = 20
 sunsetH = 20
 sunsetM = 20
 
@@ -289,8 +291,10 @@ def thread_LCD(threadName):
   global averageTemp1
   global averageTemp2
 
+  global sunrise
   global sunriseH
   global sunriseM
+  global sunset
   global sunsetH
   global sunsetM
 
@@ -900,7 +904,21 @@ while 1 :
         break
 
   # Regulation
-
+  
+  actualMonth = actualDate.month
+  sunrise = 13.5 -(9+(-abs(actualMonth-6)+6)*0.85)/2
+  sunset = 13.5 +(9+(-abs(actualMonth-6)+6)*0.85)/2
+  
+  if ((sunrise < 6) or (sunrise > 10)):
+    sunrise = 9
+  if ((sunset < 17) or (sunset > 21)):
+    sunset = 20
+    
+  sunriseH = int(sunrise)
+  sunriseM = int((sunrise%1)*60)
+  sunsetH = int(sunset)
+  sunsetM = int((sunset%1)*60)
+  
   if ((actualDate.hour > sunriseH and actualDate.hour < sunsetH) or (actualDate.hour == sunriseH and actualDate.minute > sunriseM) or (actualDate.hour == sunsetH and actualDate.minute < sunsetM)):
     day = 1
     print "day"
