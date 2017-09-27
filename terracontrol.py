@@ -690,7 +690,7 @@ def thread_LCD(threadName):
       draw.text((10,13), 'SIE', font=font)
       if btn_select_pressed:
         state = 24111
-        weight = 500
+        weight = 50
       elif btn_back_pressed:
         state = 241
       elif btn_up_pressed:
@@ -708,18 +708,18 @@ def thread_LCD(threadName):
       elif btn_back_pressed:
         state = 2411
       elif btn_up_pressed:      
-        weight += 10
+        weight += 1
       elif btn_down_pressed:
-        weight -= 10
-        if (weight < 10):
-          weight = 10
+        weight -= 1
+        if (weight < 1):
+          weight = 1
     elif state == 2412:
       draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
       draw.text((10,1), 'ER', font=font)    
       draw.text((10,13), 'SIE', font=font)
       if btn_select_pressed:
         state = 24121
-        weight = 500
+        weight = 50
       elif btn_back_pressed:
         state = 241
       elif btn_up_pressed:
@@ -737,11 +737,11 @@ def thread_LCD(threadName):
       elif btn_back_pressed:
         state = 2412
       elif btn_up_pressed:      
-        weight += 10
+        weight += 1
       elif btn_down_pressed:
-        weight -= 10
-        if (weight < 10):
-          weight = 10
+        weight -= 1
+        if (weight < 1):
+          weight = 1
     elif state == 242:
       draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
       draw.text((10,1), 'Gewicht', font=font)    
