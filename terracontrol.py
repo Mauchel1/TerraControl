@@ -370,7 +370,7 @@ def thread_LCD(threadName):
       draw.text((10,1), 'Fuetterung', font=font)    
       draw.text((10,13), 'Saeuberung', font=font)
       draw.text((10,25), 'Haeutung', font=font)
-      draw.text((10,37), 'Licht an', font=font)
+      draw.text((10,37), 'Weiteres', font=font)
       if btn_select_pressed:
         state = 211
       elif btn_back_pressed:
@@ -384,7 +384,7 @@ def thread_LCD(threadName):
       draw.text((10,1), 'Fuetterung', font=font)    
       draw.text((10,13), 'Saeuberung', font=font)
       draw.text((10,25), 'Haeutung', font=font)
-      draw.text((10,37), 'Licht an', font=font)
+      draw.text((10,37), 'Weiteres', font=font)
       if btn_select_pressed:
         state = 221
       elif btn_back_pressed:
@@ -398,7 +398,7 @@ def thread_LCD(threadName):
       draw.text((10,1), 'Fuetterung', font=font)    
       draw.text((10,13), 'Saeuberung', font=font)
       draw.text((10,25), 'Haeutung', font=font)
-      draw.text((10,37), 'Licht an', font=font)
+      draw.text((10,37), 'Weiteres', font=font)
       if btn_select_pressed:
         state = 231
       elif btn_back_pressed:
@@ -412,9 +412,9 @@ def thread_LCD(threadName):
       draw.text((10,1), 'Fuetterung', font=font)    
       draw.text((10,13), 'Saeuberung', font=font)
       draw.text((10,25), 'Haeutung', font=font)
-      draw.text((10,37), 'Licht an', font=font)
+      draw.text((10,37), 'Weiteres', font=font)
       if btn_select_pressed:
-        state = 11
+        state = 241
       elif btn_back_pressed:
         state = 11
       elif btn_up_pressed:
@@ -666,6 +666,178 @@ def thread_LCD(threadName):
         nextS -= 1
         if (nextS < 1):
           nextS = 1
+    elif state == 241:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'Gewicht', font=font)    
+      draw.text((10,13), 'Laenge', font=font)
+      draw.text((10,25), 'Licht an', font=font)
+      draw.text((10,37), 'Weiteres', font=font)
+      if btn_select_pressed:
+        state = 2411
+      elif btn_back_pressed:
+        state = 24
+      elif btn_up_pressed:
+        state = 242
+      elif btn_down_pressed:
+        state = 244
+    elif state == 2411:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'ER', font=font)    
+      draw.text((10,13), 'SIE', font=font)
+      if btn_select_pressed:
+        state = 24111
+        weight = 500
+      elif btn_back_pressed:
+        state = 241
+      elif btn_up_pressed:
+        state = 2412
+      elif btn_down_pressed:
+        state = 2412
+    elif state == 24111:
+      draw.text((0,1), 'Gewicht ER:', font=font)    
+      draw.text((40,20), str(weight), font=font)
+      draw.text((0,37), 'Gramm', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/schlangendaten.txt", "a") as f:
+          f.write("Gewicht ER: " + str(weight) + "g am " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 2411
+      elif btn_up_pressed:      
+        weight += 10
+      elif btn_down_pressed:
+        weight -= 10
+        if (weight < 10):
+          weight = 10
+    elif state == 2412:
+      draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+      draw.text((10,1), 'ER', font=font)    
+      draw.text((10,13), 'SIE', font=font)
+      if btn_select_pressed:
+        state = 24121
+        weight = 500
+      elif btn_back_pressed:
+        state = 241
+      elif btn_up_pressed:
+        state = 2411
+      elif btn_down_pressed:
+        state = 2411
+    elif state == 24121:
+      draw.text((0,1), 'Gewicht SIE:', font=font)    
+      draw.text((40,20), str(weight), font=font)
+      draw.text((0,37), 'Gramm', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/schlangendaten.txt", "a") as f:
+          f.write("Gewicht SIE: " + str(weight) + "g am " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 2412
+      elif btn_up_pressed:      
+        weight += 10
+      elif btn_down_pressed:
+        weight -= 10
+        if (weight < 10):
+          weight = 10
+    elif state == 242:
+      draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+      draw.text((10,1), 'Gewicht', font=font)    
+      draw.text((10,13), 'Laenge', font=font)
+      draw.text((10,25), 'Licht an', font=font)
+      draw.text((10,37), 'Weiteres', font=font)
+      if btn_select_pressed:
+        state = 2421
+      elif btn_back_pressed:
+        state = 24
+      elif btn_up_pressed:
+        state = 243
+      elif btn_down_pressed:
+        state = 241
+    elif state == 2421:
+      draw.polygon([(0,3), (6,6), (0,9)], outline=0, fill=0)
+      draw.text((10,1), 'ER', font=font)    
+      draw.text((10,13), 'SIE', font=font)
+      if btn_select_pressed:
+        state = 24211
+        bodylength = 50
+      elif btn_back_pressed:
+        state = 242
+      elif btn_up_pressed:
+        state = 2422
+      elif btn_down_pressed:
+        state = 2422
+    elif state == 24211:
+      draw.text((0,1), 'Laenge ER:', font=font)    
+      draw.text((40,20), str(bodylength), font=font)
+      draw.text((0,37), 'cm', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/schlangendaten.txt", "a") as f:
+          f.write("Laenge ER: " + str(bodylength) + "cm am " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 2421
+      elif btn_up_pressed:      
+        bodylength += 1
+      elif btn_down_pressed:
+        bodylength -= 1
+        if (bodylength < 1):
+          bodylength = 1
+    elif state == 2422:
+      draw.polygon([(0,15), (6,18), (0,21)], outline=0, fill=0)
+      draw.text((10,1), 'ER', font=font)    
+      draw.text((10,13), 'SIE', font=font)
+      if btn_select_pressed:
+        state = 24221
+        bodylength = 50
+      elif btn_back_pressed:
+        state = 242
+      elif btn_up_pressed:
+        state = 2421
+      elif btn_down_pressed:
+        state = 2421
+    elif state == 24221:
+      draw.text((0,1), 'Laenge SIE:', font=font)    
+      draw.text((40,20), str(bodylength), font=font)
+      draw.text((0,37), 'cm', font=font)
+      if btn_select_pressed:
+        state = 11
+        with open("/home/pi/terra/schlangendaten.txt", "a") as f:
+          f.write("Laenge SIE: " + str(bodylength) + "cm am " + time.strftime("%a, %d %b %Y", time.localtime()) + "\n")
+      elif btn_back_pressed:
+        state = 2422
+      elif btn_up_pressed:      
+        bodylength += 1
+      elif btn_down_pressed:
+        bodylength -= 1
+        if (bodylength < 1):
+          bodylength = 1
+    elif state == 243:
+      draw.polygon([(0,27), (6,30), (0,33)], outline=0, fill=0)
+      draw.text((10,1), 'Gewicht', font=font)    
+      draw.text((10,13), 'Laenge', font=font)
+      draw.text((10,25), 'Licht an', font=font)
+      draw.text((10,37), 'Weiteres', font=font)
+      if btn_select_pressed:
+        state = 243
+      elif btn_back_pressed:
+        state = 24
+      elif btn_up_pressed:
+        state = 244
+      elif btn_down_pressed:
+        state = 242
+    elif state == 244:
+      draw.polygon([(0,39), (6,42), (0,45)], outline=0, fill=0)
+      draw.text((10,1), 'Gewicht', font=font)    
+      draw.text((10,13), 'Laenge', font=font)
+      draw.text((10,25), 'Licht an', font=font)
+      draw.text((10,37), 'Weiteres', font=font)
+      if btn_select_pressed:
+        state = 244
+      elif btn_back_pressed:
+        state = 24
+      elif btn_up_pressed:
+        state = 241
+      elif btn_down_pressed:
+        state = 243    
     else:
       print "error - invalid state"
  
