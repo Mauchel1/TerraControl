@@ -17,3 +17,6 @@ Fuetterung verweigert ER: Fri, 06 Oct 2017
 naechste Fuetterung: October 18 2017
 Fuetterung erfolgreich SIE: Fri, 13 Oct 2017
 Fuetterung verweigert ER: Fri, 13 Oct 2017
+Fuetterung erfolgreich ER: Sun, 22 Oct 2017
+Fuetterung erfolgreich SIE: Sun, 22 Oct 2017
+naechste Fuetterung: October 27 2017
