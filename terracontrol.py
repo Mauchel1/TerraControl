@@ -120,8 +120,8 @@ hum2 = 50
 humidityKrit = 40
 tempStable = 0
 tempNightLow = 18
-tempDayLow = 24.5
-tempDayHigh = 27.5
+tempDayLow = 24
+tempDayHigh = 28
 tempHystereseNight = 2
 averageHum1Array = np.zeros(5)
 averageHum2Array = np.zeros(5)
@@ -945,12 +945,12 @@ while 1 :
     else:
       tempStable = 1
       
-    if (heaterOn and actualTemp > (tempDayLow + ((tempDayHigh - tempDayLow) / 2)) ):
+    if (heaterOn and actualTemp > ((tempDayLow * 0.8) + (tempDayHigh * 0.2)) ):
       heaterOn = 0
       GPIO.output(PIN_HEAT, GPIO.HIGH)
       print "Hitze aus"
           
-    if (coolerOn and actualTemp < (tempDayLow + ((tempDayHigh - tempDayLow) / 2)) ):
+    if (coolerOn and actualTemp < ((tempDayLow * 0.2) + (tempDayHigh * 0.8)) ):
       coolerOn = 0
       GPIO.output(PIN_COOLER, GPIO.HIGH)
       print "Luefter aus"
