@@ -958,11 +958,11 @@ while 1 :
       print "Luefter aus"
           
     # Humidity Area
-    #if (tempStable and (humidity < humidityKrit) and ((actualTime - lastFoggerOn) > 300)):
-    #  GPIO.output(PIN_FOGGER, GPIO.LOW)
-    #  print "Nebel an"
-    #  lastFoggerOn = time.time()
-    #  foggerOn = 1
+    if (tempStable and (humidity < humidityKrit) and ((actualTime - lastFoggerOn) > 300)):
+      GPIO.output(PIN_FOGGER, GPIO.LOW)
+      print "Nebel an"
+      lastFoggerOn = time.time()
+      foggerOn = 1
       
   else:
     GPIO.output(PIN_LIGHT, GPIO.HIGH)
@@ -978,9 +978,10 @@ while 1 :
       tempStable = 1
       GPIO.output(PIN_HEAT, GPIO.HIGH)
   
-  if (foggerOn and (actualTime - lastFoggerOn) > 20):
+  if (foggerOn and (actualTime - lastFoggerOn) > 30):
     foggerOn = 0
     GPIO.output(PIN_FOGGER, GPIO.HIGH)
+    print "Nebel aus"
 
   # Warning LED's
   
