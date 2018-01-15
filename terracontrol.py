@@ -930,6 +930,8 @@ while 1 :
     
     GPIO.output(PIN_LIGHT, GPIO.LOW)
     print "Licht an"
+    GPIO.output(PIN_COOLER, GPIO.LOW)
+    print "Luefter an"
 
     # Temperature Area
     if (actualTemp < tempDayLow):
@@ -940,7 +942,7 @@ while 1 :
     elif (actualTemp > tempDayHigh):
       tempStable = 0
       coolerOn = 1
-      GPIO.output(PIN_COOLER, GPIO.LOW)
+      #GPIO.output(PIN_COOLER, GPIO.LOW)
       print "Luefter an"
     else:
       tempStable = 1
@@ -952,7 +954,7 @@ while 1 :
           
     if (coolerOn and actualTemp < ((tempDayLow * 0.2) + (tempDayHigh * 0.8)) ):
       coolerOn = 0
-      GPIO.output(PIN_COOLER, GPIO.HIGH)
+      #GPIO.output(PIN_COOLER, GPIO.HIGH)
       print "Luefter aus"
           
     # Humidity Area
@@ -965,6 +967,8 @@ while 1 :
   else:
     GPIO.output(PIN_LIGHT, GPIO.HIGH)
     print "Licht aus"
+    GPIO.output(PIN_COOLER, GPIO.HIGH)
+    print "Luefter aus"
     if (actualTemp < tempNightLow):
       GPIO.output(PIN_HEAT, GPIO.LOW)
       tempStable = 0
