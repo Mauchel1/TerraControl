@@ -49,3 +49,5 @@ naechste Fuetterung: January 08 2018
 naechste Fuetterung: January 16 2018
 Fuetterung erfolgreich ER: Thu, 11 Jan 2018
 Fuetterung erfolgreich ER: Thu, 11 Jan 2018
+Fuetterung verweigert ER: Wed, 17 Jan 2018
+naechste Fuetterung: January 22 2018
