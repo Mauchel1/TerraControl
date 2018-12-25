@@ -139,3 +139,6 @@ naechste Fuetterung: December 06 2018
 naechste Fuetterung: December 14 2018
 Fuetterung erfolgreich ER: Sun, 09 Dec 2018
 Fuetterung erfolgreich SIE: Sun, 09 Dec 2018
+naechste Fuetterung: December 30 2018
+Fuetterung erfolgreich ER: Tue, 25 Dec 2018
+Fuetterung erfolgreich SIE: Tue, 25 Dec 2018
