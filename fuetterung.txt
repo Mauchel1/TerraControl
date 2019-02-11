@@ -155,3 +155,6 @@ naechste Fuetterung: January 30 2019
 naechste Fuetterung: February 06 2019
 Fuetterung erfolgreich ER: Fri, 01 Feb 2019
 Fuetterung erfolgreich SIE: Fri, 01 Feb 2019
+naechste Fuetterung: February 16 2019
+Fuetterung erfolgreich ER: Mon, 11 Feb 2019
+Fuetterung erfolgreich SIE: Mon, 11 Feb 2019
